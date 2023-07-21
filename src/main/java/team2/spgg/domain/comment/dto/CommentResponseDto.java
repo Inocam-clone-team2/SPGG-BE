@@ -12,7 +12,7 @@ public class CommentResponseDto {
 
     private Long id;
     private String content;
-    private String username;
+    private String nickname;
     private LocalDateTime createdAt;
 
     /**
@@ -23,7 +23,7 @@ public class CommentResponseDto {
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
-        this.username = comment.getUsername();
+        this.nickname = comment.getNickname();
         this.createdAt = comment.getCreatedAt();
     }
 }

@@ -127,6 +127,8 @@ public class WebSecurityConfig {
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers(GET, "/post/**").permitAll()
+                                .requestMatchers(GET, "/aa/ranking").permitAll() // "/aa/ranking" 경로를 모든 사용자에게 허용
+                                .requestMatchers(GET,"/api/**").permitAll() // "/api/"로 시작하는 모든 요청을 승인
                                 .anyRequest().authenticated()) // 그 외 모든 요청 인증처리
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

@@ -2,6 +2,7 @@ package team2.spgg.global.responseDto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team2.spgg.domain.api.dto.RankingData;
 
 @Getter
 @NoArgsConstructor
@@ -23,4 +24,5 @@ public class ApiResponse<T>{
         this.info = info;
         this.error = error;
     }
+
 }

@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import team2.spgg.domain.post.entity.Post;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,4 +38,12 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
      */
     @Query("SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.disliked WHERE p.id = :id")
     Post findByIdWithDislikes(@Param("id") Long id);
+
+    @Query(value = "SELECT * FROM post WHERE title LIKE %?1% OR content LIKE %?1% ORDER BY createDate DESC" , nativeQuery = true)
+    List<Post> findByContent(String content);
+
+    List<Post> findAllByOrderByIdDesc();
+
+
 }
+

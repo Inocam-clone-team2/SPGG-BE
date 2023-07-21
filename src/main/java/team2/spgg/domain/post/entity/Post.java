@@ -31,7 +31,7 @@ public class Post extends Timestamped {
     private String title;
 
     @Column(nullable = false)
-    private String username;
+    private String nickname;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -68,7 +68,7 @@ public class Post extends Timestamped {
      */
     public Post(PostRequestDto postRequestDto, String image, User user) {
         this.title = postRequestDto.getTitle();
-        this.username = user.getUsername();
+        this.nickname = user.getNickname();
         this.content = postRequestDto.getContent();
         this.image = image;
         this.liked = 0;

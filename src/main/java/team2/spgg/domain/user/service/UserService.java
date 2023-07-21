@@ -31,13 +31,14 @@ public class UserService {
      * @return 처리 결과에 대한 ApiResponse
      */
     public ApiResponse<?> signup(SignupRequestDto signupRequestDto) {
-        String username = signupRequestDto.getUsername();
+        String email = signupRequestDto.getEmail();
+        String nickname = signupRequestDto.getNickname();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
 
-        checkDuplicatedUsername(username);
+        checkDuplicatedUsername(nickname);
         UserRoleEnum role = UserRoleEnum.USER;
 
-        User user = new User(username, password, role);
+        User user = new User(email, nickname, password, role);
         userRepository.save(user);
 
         return ResponseUtils.okWithMessage(SuccessCodeEnum.USER_SIGNUP_SUCCESS);

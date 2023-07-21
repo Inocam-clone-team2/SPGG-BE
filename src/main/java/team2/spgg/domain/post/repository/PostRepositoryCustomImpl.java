@@ -8,14 +8,14 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
-import com.example.spgg.domain.post.dto.QPostResponseDto;
+import team2.spgg.domain.post.dto.QPostResponseDto;
 import team2.spgg.domain.post.dto.QPostResponseDto;
 import team2.spgg.domain.post.entity.QPost;
 
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
-import static com.example.spgg.domain.post.entity.QPost.post;
+import static team2.spgg.domain.post.entity.QPost.post;
 
 
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 .select(new QPostResponseDto(
                         QPost.post.id,
                         QPost.post.title,
-                        QPost.post.username,
+                        QPost.post.nickname,
                         QPost.post.content,
                         QPost.post.createdAt,
                         QPost.post.image,
@@ -62,7 +62,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
      * @return 사용자명 조건에 해당하는 BooleanExpression 객체
      */
     private BooleanExpression usernameEq(String usernameCond) {
-        return hasText(usernameCond) ? QPost.post.username.eq(usernameCond) : null;
+        return hasText(usernameCond) ? post.nickname.eq(usernameCond) : null;
     }
 
     /**

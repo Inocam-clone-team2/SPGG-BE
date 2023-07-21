@@ -16,7 +16,7 @@ public class PostResponseDto {
 
     private Long id;
     private String title;
-    private String username;
+    private String nickname;
     private String content;
     private LocalDateTime createdAt;
     private List<CommentResponseDto> commentList;
@@ -25,10 +25,10 @@ public class PostResponseDto {
     private long disliked;
 
     @QueryProjection
-    public PostResponseDto(Long id, String title, String username, String content, LocalDateTime createdAt, String image, long liked, long disliked) {
+    public PostResponseDto(Long id, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked, long disliked) {
         this.id = id;
         this.title = title;
-        this.username = username;
+        this.nickname = nickname;
         this.content = content;
         this.createdAt = createdAt;
         this.image = image;
@@ -39,7 +39,7 @@ public class PostResponseDto {
     public PostResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
-        this.username = post.getUsername();
+        this.nickname = post.getNickname();
         this.content = post.getContent();
         this.commentList = post.getCommentList().stream()
                 .map(CommentResponseDto::new)

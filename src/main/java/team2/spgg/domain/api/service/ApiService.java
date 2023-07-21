@@ -1,24 +1,20 @@
 package team2.spgg.domain.api.service;
 
-import com.example.spgg.domain.api.apimodel.*;
-import com.example.spgg.domain.api.apimodel.attr.match.*;
-import team2.spgg.domain.api.apimodel.attr.matchentry.Match;
-import team2.spgg.domain.api.apimodel.attr.rank.Entry;
-import com.example.spgg.domain.api.dto.*;
-import com.example.spgg.domain.api.entity.*;
-import com.example.spgg.domain.api.repository.*;
-import team2.spgg.global.utils.DescRank;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import team2.spgg.domain.api.apimodel.*;
 import team2.spgg.domain.api.apimodel.attr.match.*;
+import team2.spgg.domain.api.apimodel.attr.matchentry.Match;
+import team2.spgg.domain.api.apimodel.attr.rank.Entry;
 import team2.spgg.domain.api.dto.*;
 import team2.spgg.domain.api.entity.*;
 import team2.spgg.domain.api.repository.*;
+import team2.spgg.global.utils.DescRank;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -58,16 +54,20 @@ public class ApiService {
 	private final static ApiService apiUtil = new ApiService();
 
 	public ApiService() {
-	}
 
-	
-	public static ApiService getInstance() {
+	}
+	public static ApiService getInstance(){
+
 		return apiUtil;
 	}
 
 	// 테스트 api라서 요청횟수가 적기 때문에 싱크로나이즈드로 순차처리
 	
 	// 이름으로 랭크검색
+
+	@Value("${riot.api.key}") // application.properties에 정의된 riot.api.key 값을 읽어옵니다.
+	public String apikey;
+
 	public synchronized RespDto<?> getRank(String name) {
 
 		List<RankingDto> rankingDtos = new ArrayList<>();
@@ -539,7 +539,7 @@ public class ApiService {
 			System.out.println(name);
 
 			URL url = new URL(
-					"https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name + "?api_key=" + apiKey);
+					"https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + name + "?api_key=" + apikey);
 			
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -617,7 +617,7 @@ public class ApiService {
 			// 소환사 정보
 
 			URL url = new URL("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-account/" + accountId
-					+ "?api_key=" + apiKey);
+					+ "?api_key=" + apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -682,7 +682,7 @@ public class ApiService {
 		try {
 
 			URL url1 = new URL("https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/" + summonerId
-					+ "?api_key=" + apiKey);
+					+ "?api_key=" + apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url1.openConnection();
 
@@ -761,7 +761,7 @@ public class ApiService {
 		// 매치엔트리 가져오기
 		try {
 			URL url2 = new URL("https://kr.api.riotgames.com/lol/match/v4/matchlists/by-account/" + dto.getAccountId()
-					+ "?api_key=" + apiKey);
+					+ "?api_key=" + apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url2.openConnection();
 
@@ -827,7 +827,7 @@ public class ApiService {
 		try {
 			// 매치 가져오기
 
-			URL url3 = new URL("https://kr.api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" + apiKey);
+			URL url3 = new URL("https://kr.api.riotgames.com/lol/match/v4/matches/" + matchId + "?api_key=" + apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url3.openConnection();
 
@@ -975,7 +975,7 @@ public class ApiService {
 		try {
 			URL url = new URL(
 					"https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key="
-							+ getApikey());
+							+ apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -1039,7 +1039,7 @@ public class ApiService {
 		try {
 			URL url = new URL(
 					"https://kr.api.riotgames.com/lol/league/v4/grandmasterleagues/by-queue/RANKED_SOLO_5x5?api_key="
-							+ getApikey());
+							+ apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -1109,7 +1109,7 @@ public class ApiService {
 		try {
 			URL url = new URL(
 					"https://kr.api.riotgames.com/lol/league/v4/masterleagues/by-queue/RANKED_SOLO_5x5?api_key="
-							+ getApikey());
+							+ apikey);
 
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -1183,7 +1183,7 @@ public class ApiService {
 
 			try {
 				String urlSource = "https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/" + tier + "/"
-						+ rank + "?page=" + page + "&api_key=" + getApikey();
+						+ rank + "?page=" + page + "&api_key=" + apikey;
 
 				URL url = new URL(urlSource);
 

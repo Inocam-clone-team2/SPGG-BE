@@ -1,14 +1,16 @@
 package team2.spgg.domain.user.controller;
 
-import team2.spgg.global.responseDto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team2.spgg.domain.user.dto.SignupRequestDto;
+import team2.spgg.domain.user.repository.UserRepository;
 import team2.spgg.domain.user.service.UserService;
+import team2.spgg.global.responseDto.ApiResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,3 +31,5 @@ public class UserController {
         return userService.signup(signupRequestDto);
     }
 }
+
+

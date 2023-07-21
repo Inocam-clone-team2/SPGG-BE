@@ -14,11 +14,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import teameight.gg.global.jwt.JwtAuthenticationFilter;
-import teameight.gg.global.jwt.JwtAuthorizationFilter;
-import teameight.gg.global.jwt.JwtExceptionFilter;
-import teameight.gg.global.jwt.JwtProvider;
-import teameight.gg.global.security.UserDetailsServiceImpl;
+import com.example.spgg.global.jwt.JwtAuthenticationFilter;
+import com.example.spgg.global.jwt.JwtAuthorizationFilter;
+import com.example.spgg.global.jwt.JwtExceptionFilter;
+import com.example.spgg.global.jwt.JwtProvider;
+import com.example.spgg.global.security.UserDetailsServiceImpl;
 
 import java.util.Arrays;
 

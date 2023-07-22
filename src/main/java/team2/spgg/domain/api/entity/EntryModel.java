@@ -19,33 +19,17 @@ public class EntryModel {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "leagueId")
-	private String leagueId;
-
-	@Column(name = "queueType")
-	private String queueType;
-
-	@Column(name = "tier")
-	private String tier;
-
-	@Column(name = "rankName") // 변경된 필드명: rank -> rankName
-	private String rankName;
-
-	@Column(name = "summonerId")
-	private String summonerId;
-
-	@Column(name = "summonerName")
 	private String summonerName;
 
-	@Column(name = "leaguePoints")
+	private String tier;
+
+	private String rank;
+
 	private long leaguePoints;
 
-	@Column(name = "wins")
-	private long wins;
+	private int wins;
 
-	@Column(name = "losses")
-	private long losses;
+	private int losses;
 
-	@Column(name = "tierRankId")
-	private String tierRankId;
+	private double winRate;
 }

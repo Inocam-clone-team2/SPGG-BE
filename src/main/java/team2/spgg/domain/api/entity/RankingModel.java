@@ -17,21 +17,19 @@ public class RankingModel {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-
+    @Column
 	private int id;
-
-	private String summonerId;
-
+    @Column
     private String summonerName;
-
+    @Column
     private String tier;
-
+    @Column(name = "rankName")
     private String rank;
-
+    @Column
     private long leaguePoints;
-
+    @Column
     private int win;
-
+    @Column
     private int lose;
 
 }

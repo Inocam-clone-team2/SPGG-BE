@@ -15,7 +15,6 @@ public class RankingData {
     private String summonerName;
     private String tier;
     private String rank;
-    private int summonerLevel;
     private int leaguePoints;
     private int wins;
     private int losses;
@@ -25,5 +24,4 @@ public class RankingData {
         int totalGames = (int) (wins + losses);
         return (double) wins / totalGames * 100;
     }
-
 }

@@ -14,7 +14,6 @@ public class RankingEntry {
     private String tier;
     private String rank;
     private int leaguePoints;
-    private int summonerLevel;
     private int wins;
     private int losses;
     private double winRate;

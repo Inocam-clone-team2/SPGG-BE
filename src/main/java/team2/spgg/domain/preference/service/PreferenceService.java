@@ -5,15 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team2.spgg.domain.post.entity.Post;
 import team2.spgg.domain.post.repository.PostRepository;
-import team2.spgg.domain.preference.entity.Dislike;
 import team2.spgg.domain.preference.entity.Like;
-import team2.spgg.domain.preference.repository.DislikeRepository;
 import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
 import team2.spgg.global.responseDto.ApiResponse;
 
-import static team2.spgg.global.stringCode.SuccessCodeEnum.DISLIKE_CANCEL_SUCCESS;
-import static team2.spgg.global.stringCode.SuccessCodeEnum.DISLIKE_SUCCESS;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.LIKE_CANCEL_SUCCESS;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.LIKE_SUCCESS;
 import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
@@ -25,7 +21,6 @@ import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
 public class PreferenceService {
 
     private final LikeRepository likeRepository;
-    private final DislikeRepository dislikeRepository;
     private final PostRepository postRepository;
 
     /**

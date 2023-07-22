@@ -7,15 +7,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import team2.spgg.domain.api.dto.RankingData;
 import team2.spgg.domain.api.dto.RankingEntry;
 import team2.spgg.domain.api.service.RiotApiService;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/ranking")
 public class RankingController {
 
     private final RiotApiService riotApiService;
@@ -26,7 +24,7 @@ public class RankingController {
     }
 
     // 랭킹 조회를 위한 API 호출 메서드
-    @GetMapping("/ranking")
+    @GetMapping
     public ResponseEntity<List<RankingEntry>> getRankingDataDetail(@RequestParam("tier") String tier,
                                                                    @RequestParam("rank") String rank) {
         try {
@@ -42,7 +40,7 @@ public class RankingController {
         }
     }
 
-    @GetMapping("/ranking/all")
+    @GetMapping("/all")
     public ResponseEntity<List<RankingEntry>> getAllRankings() {
         try {
             // 라이엇 API를 통해 모든 랭킹 정보를 조회합니다.

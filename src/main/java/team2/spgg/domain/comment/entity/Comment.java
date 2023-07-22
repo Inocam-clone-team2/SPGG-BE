@@ -12,12 +12,13 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
-@NoArgsConstructor(access = PROTECTED)
 @Getter
+@NoArgsConstructor(access = PROTECTED)
 public class Comment extends Timestamped {
 
-    @Id // 식별자
+    @Id
     @GeneratedValue(strategy = IDENTITY)
+    @Column(name = "comment_id")
     private Long id;
 
     @ManyToOne

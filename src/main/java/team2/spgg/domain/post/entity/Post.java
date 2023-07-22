@@ -41,8 +41,6 @@ public class Post extends Timestamped {
 
     private long liked;
 
-    private long disliked;
-
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,7 +70,6 @@ public class Post extends Timestamped {
         this.content = postRequestDto.getContent();
         this.image = image;
         this.liked = 0;
-        this.disliked = 0;
         this.user = user;
     }
 
@@ -103,24 +100,4 @@ public class Post extends Timestamped {
         this.liked += 1;
     }
 
-    /**
-     * 좋아요 수를 감소시킵니다.
-     */
-    public void decreaseLike() {
-        this.liked -= 1;
-    }
-
-    /**
-     * 싫어요 수를 증가시킵니다.
-     */
-    public void increaseDislike() {
-        this.disliked += 1;
-    }
-
-    /**
-     * 싫어요 수를 감소시킵니다.
-     */
-    public void decreaseDislike() {
-        this.disliked -= 1;
-    }
 }

@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class RespDto<T> {
-	
-	private int statusCode;
-	private String message;
-	private T data;
+
+    private int statusCode;
+    private String message;
+    private T data;
 }

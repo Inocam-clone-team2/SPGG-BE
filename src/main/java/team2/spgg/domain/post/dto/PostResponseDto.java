@@ -22,10 +22,9 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private String image;
     private long liked;
-    private long disliked;
 
     @QueryProjection
-    public PostResponseDto(Long id, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked, long disliked) {
+    public PostResponseDto(Long id, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked) {
         this.id = id;
         this.title = title;
         this.nickname = nickname;
@@ -33,7 +32,6 @@ public class PostResponseDto {
         this.createdAt = createdAt;
         this.image = image;
         this.liked = liked;
-        this.disliked = disliked;
     }
 
     public PostResponseDto(Post post) {
@@ -47,6 +45,5 @@ public class PostResponseDto {
         this.createdAt = post.getCreatedAt();
         this.image = post.getImage();
         this.liked = post.getLiked();
-        this.disliked = post.getDisliked();
     }
 }

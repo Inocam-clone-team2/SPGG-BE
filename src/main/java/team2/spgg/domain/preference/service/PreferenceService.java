@@ -45,32 +45,10 @@ public class PreferenceService {
             return okWithMessage(LIKE_SUCCESS);
         }
         removeLike(post, user);
-        post.decreaseLike();
         postRepository.save(post);
         return okWithMessage(LIKE_CANCEL_SUCCESS);
     }
 
-    /**
-     * 게시물에 대한 싫어요를 추가 또는 제거하는 메소드입니다.
-     *
-     * @param postId    게시물 ID
-     * @param user      사용자 정보
-     * @return 성공 또는 실패 여부를 반환하는 ApiResponse
-     */
-    public ApiResponse<?> updateDislike(Long postId, User user) {
-        Post post = postRepository.findByIdWithDislikes(postId);
-
-        if (!isDislikedPost(post, user)) {
-            createDislike(post, user);
-            post.increaseDislike();
-            postRepository.save(post);
-            return okWithMessage(DISLIKE_SUCCESS);
-        }
-        removeDislike(post, user);
-        post.decreaseDislike();
-        postRepository.save(post);
-        return okWithMessage(DISLIKE_CANCEL_SUCCESS);
-    }
 
     /**
      * 해당 게시물에 사용자가 좋아요를 눌렀는지 확인합니다.
@@ -83,16 +61,6 @@ public class PreferenceService {
         return likeRepository.findByPostAndUser(post, user).isPresent();
     }
 
-    /**
-     * 해당 게시물에 사용자가 싫어요를 눌렀는지 확인합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     * @return 사용자가 싫어요를 눌렀는지 여부
-     */
-    private boolean isDislikedPost(Post post, User user) {
-        return dislikeRepository.findByPostAndUser(post, user).isPresent();
-    }
 
     /**
      * 게시물에 좋아요를 생성합니다.
@@ -106,17 +74,6 @@ public class PreferenceService {
     }
 
     /**
-     * 게시물에 싫어요를 생성합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     */
-    private void createDislike(Post post, User user) {
-        Dislike dislike = new Dislike(post, user);
-        dislikeRepository.save(dislike);
-    }
-
-    /**
      * 게시물의 좋아요를 제거합니다.
      *
      * @param post      게시물
@@ -127,14 +84,4 @@ public class PreferenceService {
         likeRepository.delete(like);
     }
 
-    /**
-     * 게시물의 싫어요를 제거합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     */
-    private void removeDislike(Post post, User user) {
-        Dislike dislike = dislikeRepository.findByPostAndUser(post, user).orElseThrow();
-        dislikeRepository.delete(dislike);
-    }
 }

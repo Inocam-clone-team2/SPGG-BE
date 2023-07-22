@@ -1,7 +1,7 @@
 package team2.spgg.global.aop;
 
 
-import team2.spgg.domain.api.dto.RespDto;
+import com.amazonaws.Response;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import team2.spgg.domain.api.dto.RespDto;
 
 import java.util.HashMap;
 import java.util.Map;

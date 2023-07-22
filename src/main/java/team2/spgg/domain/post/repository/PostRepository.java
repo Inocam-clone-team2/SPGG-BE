@@ -30,20 +30,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Query("SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.liked WHERE p.id = :id")
     Post findByIdWithLikes(@Param("id") Long id);
 
-    /**
-     * 해당 ID의 게시물을 가져올 때, 해당 게시물의 싫어요 정보까지 상세히 가져옵니다.
-     *
-     * @param id 가져올 게시물의 ID.
-     * @return 해당 ID의 게시물과 관련된 싫어요 정보를 포함한 Post 객체.
-     */
-    @Query("SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.disliked WHERE p.id = :id")
-    Post findByIdWithDislikes(@Param("id") Long id);
-
     @Query(value = "SELECT * FROM post WHERE title LIKE %?1% OR content LIKE %?1% ORDER BY createDate DESC" , nativeQuery = true)
     List<Post> findByContent(String content);
 
     List<Post> findAllByOrderByIdDesc();
-
 
 }
 

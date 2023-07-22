@@ -241,7 +241,7 @@ public class ApiService {
 		if (summonerEntity == null) {
 
 			// api서버에 소환사 아이디가 있는지 확인하고 없으면 업데이트
-			apiSummoner = getApiSummoner(tempName, getApikey());
+			apiSummoner = getApiSummoner(tempName, apikey);
 			try {
 				Thread.sleep(211);
 			} catch (InterruptedException e) {
@@ -263,7 +263,7 @@ public class ApiService {
 		if (entryEntities == null || entryEntities.size() == 0) {
 
 			// api서버에 소환사 아이디가 있는지 확인하고 있으면 저장
-			List<ApiEntry> apiEntries = getApiEntries(summonerEntity.getSummonerId(), getApikey());
+			List<ApiEntry> apiEntries = getApiEntries(summonerEntity.getSummonerId(), apikey);
 			try {
 				Thread.sleep(211);
 			} catch (InterruptedException e) {
@@ -332,7 +332,7 @@ public class ApiService {
 					.summonerName(summonerEntity.getName()).build();
 
 			// api서버에서 확인하고 있으면 db저장
-			ApiMatchEntry apiMatchEntry = getApiMatchEntry(getApiMatchEntryDto, getApikey());
+			ApiMatchEntry apiMatchEntry = getApiMatchEntry(getApiMatchEntryDto, apikey);
 			try {
 				Thread.sleep(211);
 			} catch (InterruptedException e) {
@@ -363,7 +363,7 @@ public class ApiService {
 				countMatch++;
 
 				// 매치아이디로 경기 가져와서 db저장
-				ApiMatch apiMatch = getApiMatch(match.getGameId(), getApikey());
+				ApiMatch apiMatch = getApiMatch(match.getGameId(), apikey);
 				try {
 					Thread.sleep(211);
 				} catch (InterruptedException e) {
@@ -404,7 +404,7 @@ public class ApiService {
 		try {
 
 			// apiKey 가져오기
-			String apiKey = getApikey();
+			String apiKey = apikey;
 
 			// 소환사 정보
 
@@ -453,7 +453,7 @@ public class ApiService {
 
 				countMatch++;
 
-				ApiMatch apiMatch = getApiMatch(match.getGameId(), apiKey);
+				ApiMatch apiMatch = getApiMatch(match.getGameId(), apikey);
 				Thread.sleep(211);
 
 				if (apiMatch == null) {
@@ -502,33 +502,6 @@ public class ApiService {
 		}
 	}
 
-	// api키 가져오기
-	private String getApikey() {
-		try {
-
-			URL keyUrl = new URL("http://59.20.79.42/server/riotapikey.html");
-
-			HttpURLConnection con = (HttpURLConnection) keyUrl.openConnection();
-
-			BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
-
-			StringBuilder sb = new StringBuilder();
-
-			String input = "";
-			while ((input = br.readLine()) != null) {
-				sb.append(input);
-			}
-
-			br.close(); // 버퍼 닫기
-			con.disconnect(); // 스트림 닫기
-
-			return sb.toString();
-
-		} catch (Exception e) {
-			System.out.println("api키를 가져오지 못했습니다.");
-		}
-		return null;
-	}
 
 	@Transactional
 	public synchronized ApiSummoner getApiSummoner(String name, String apiKey) {
@@ -728,7 +701,7 @@ public class ApiService {
 					entryModel = EntryModel.builder().leagueId(apiEntry.getLeagueId())
 							.leaguePoints(apiEntry.getLeaguePoints()).queueType(apiEntry.getQueueType())
 							.summonerId(apiEntry.getSummonerId()).summonerName(apiEntry.getSummonerName())
-							.rank(apiEntry.getRank()).tier(apiEntry.getTier()).wins(apiEntry.getWins())
+							.rankName(apiEntry.getRank()).tier(apiEntry.getTier()).wins(apiEntry.getWins())
 							.losses(apiEntry.getLosses()).tierRankId(apiEntry.getTier().toLowerCase() + "_" + division)
 							.build();
 				} else {
@@ -736,7 +709,7 @@ public class ApiService {
 					entryModel = EntryModel.builder().id(entryEntity.getId()).leagueId(apiEntry.getLeagueId())
 							.leaguePoints(apiEntry.getLeaguePoints()).queueType(apiEntry.getQueueType())
 							.summonerId(apiEntry.getSummonerId()).summonerName(apiEntry.getSummonerName())
-							.rank(apiEntry.getRank()).tier(apiEntry.getTier()).wins(apiEntry.getWins())
+							.rankName(apiEntry.getRank()).tier(apiEntry.getTier()).wins(apiEntry.getWins())
 							.losses(apiEntry.getLosses()).tierRankId(apiEntry.getTier().toLowerCase() + "_" + division)
 							.build();
 

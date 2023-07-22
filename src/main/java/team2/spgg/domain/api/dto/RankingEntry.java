@@ -1,10 +1,10 @@
 package team2.spgg.domain.api.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankingEntry {
@@ -12,4 +12,7 @@ public class RankingEntry {
     private String tier;
     private String rank;
     private int leaguePoints;
+    private int summonerLevel;
+    private int wins;
+    private int losses;
 }

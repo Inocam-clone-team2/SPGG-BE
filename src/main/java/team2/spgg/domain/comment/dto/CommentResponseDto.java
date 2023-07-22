@@ -23,7 +23,7 @@ public class CommentResponseDto {
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
-        this.nickname = comment.getNickname();
+        this.nickname = comment.getUser().getNickname();
         this.createdAt = comment.getCreatedAt();
     }
 }

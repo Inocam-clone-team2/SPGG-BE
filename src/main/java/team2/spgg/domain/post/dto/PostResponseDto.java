@@ -37,7 +37,7 @@ public class PostResponseDto {
     public PostResponseDto(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
-        this.nickname = post.getNickname();
+        this.nickname = post.getUser().getNickname();
         this.content = post.getContent();
         this.commentList = post.getCommentList().stream()
                 .map(CommentResponseDto::new)

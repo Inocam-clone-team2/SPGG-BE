@@ -12,7 +12,7 @@ import team2.spgg.domain.preference.service.PreferenceService;
 import team2.spgg.global.security.UserDetailsImpl;
 
 @Controller
-@RequestMapping("/post")
+@RequestMapping("/api/post/{postId}/like")
 @RequiredArgsConstructor
 public class PreferenceController {
 
@@ -26,7 +26,7 @@ public class PreferenceController {
      * @param redirectAttributes 리다이렉트 시 데이터를 전달하기 위한 RedirectAttributes
      * @return 업데이트된 게시물 페이지로 리다이렉트하는 RedirectView
      */
-    @PostMapping("/{postId}/like")
+    @PostMapping
     public RedirectView updateLike(@PathVariable Long postId,
                                    @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
                                    RedirectAttributes redirectAttributes) {

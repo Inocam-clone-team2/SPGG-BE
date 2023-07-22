@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/aa")
+@RequestMapping
 public class RankingController {
 
     private final RiotApiService riotApiService;
@@ -27,10 +27,10 @@ public class RankingController {
 
     // 랭킹 조회를 위한 API 호출 메서드
     @GetMapping("/ranking")
-    public ResponseEntity<List<RankingData>> getRanking(@RequestParam("tier") String tier,
-                                                        @RequestParam("rank") String rank) {
+    public ResponseEntity<List<RankingEntry>> getRankingDataDetail(@RequestParam("tier") String tier,
+                                                                   @RequestParam("rank") String rank) {
         try {
-            List<RankingData> rankingData = riotApiService.getRankingData(tier, rank);
+            List<RankingEntry> rankingData = riotApiService.getRankingDataDetail(tier, rank);
 
             if (!rankingData.isEmpty()) {
                 return ResponseEntity.ok(rankingData);

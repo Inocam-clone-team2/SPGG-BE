@@ -16,8 +16,14 @@ public class RankingData {
     private String tier;
     private String rank;
     private int summonerLevel;
-    private double winRate;
     private int leaguePoints;
+    private int wins;
+    private int losses;
+    private double winRate;
 
-    private List<RankingEntry> entries;
+    public double getWinRate() {
+        int totalGames = (int) (wins + losses);
+        return (double) wins / totalGames * 100;
+    }
+
 }

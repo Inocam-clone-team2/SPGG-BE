@@ -35,7 +35,7 @@ public class UserService {
         String nickname = signupRequestDto.getNickname();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
 
-        checkDuplicatedUsername(nickname);
+        checkDuplicatedEmail(email);
         UserRoleEnum role = UserRoleEnum.USER;
 
         User user = new User(email, nickname, password, role);
@@ -47,11 +47,11 @@ public class UserService {
     /**
      * 중복된 회원 이름인지 확인합니다.
      *
-     * @param username 회원 이름
+     * @param email 회원 이름
      * @throws InvalidConditionException 중복된 회원 이름이 있을 경우 발생하는 예외
      */
-    private void checkDuplicatedUsername(String username) {
-        Optional<User> found = userRepository.findByUsername(username);
+    private void checkDuplicatedEmail(String email) {
+        Optional<User> found = userRepository.findByEmail(email);
         if (found.isPresent()) {
             throw new InvalidConditionException(ErrorCodeEnum.DUPLICATE_USERNAME_EXIST);
         }

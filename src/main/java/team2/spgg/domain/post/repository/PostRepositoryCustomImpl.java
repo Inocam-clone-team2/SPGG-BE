@@ -45,7 +45,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 ))
                 .from(QPost.post)
                 .where(
-                        usernameEq(condition.getUsername()),
+                        usernameEq(condition.getNickname()),
                         titleEq(condition.getTitle()))
                 .orderBy(QPost.post.createdAt.desc())
                 .offset(pageable.getOffset())

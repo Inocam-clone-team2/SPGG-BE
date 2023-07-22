@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostSearchCondition {
 
-    private String username;
+    private String nickname;
     private String title;
 }

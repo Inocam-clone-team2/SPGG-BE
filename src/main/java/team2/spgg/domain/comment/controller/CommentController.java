@@ -9,7 +9,7 @@ import team2.spgg.global.responseDto.ApiResponse;
 import team2.spgg.global.security.UserDetailsImpl;
 
 @RestController
-@RequestMapping("/post/{postId}/comment")
+@RequestMapping("/api/post/{postId}/comments")
 @RequiredArgsConstructor
 public class CommentController {
 

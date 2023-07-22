@@ -18,9 +18,6 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    private String username;
-
-    @Column(unique = true)
     private String email;
 
     @Column(unique = true)
@@ -35,8 +32,7 @@ public class User {
 
     public User(String email, String nickname, String password, UserRoleEnum role) {
         this.email = email;
-        this.username = getUsername();
-        this.nickname = getNickname();
+        this.nickname = nickname;
         this.password = password;
         this.role = role;
     }

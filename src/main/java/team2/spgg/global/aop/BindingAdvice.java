@@ -27,7 +27,7 @@ public class BindingAdvice {
 	
 	//@Before, @After, @Around 
 	// Around는 함수의 매개변수를 이용할 수 있다
-	@Around("execution(* com.cos.opgg..*Controller.*(..))")
+	@Around("execution(* team2.spgg.domain.*Controller.*(..))")
 	//joinPoint에 접근하기위해사용 => BindingResult에 접근할수 있다.
 	//proceedingJoinPoint를 가져올수 있다 (메서드의 컨텍스트)
 	//모든리턴타입을 가진 validex01 이하에있는 모든패키지에있는 Controller 의 모든 파라메터

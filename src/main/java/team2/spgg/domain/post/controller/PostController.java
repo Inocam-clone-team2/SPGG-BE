@@ -12,7 +12,7 @@ import team2.spgg.global.responseDto.ApiResponse;
 import team2.spgg.global.security.UserDetailsImpl;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/api/post")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -50,7 +50,7 @@ public class PostController {
      * @param userDetailsImpl 인증된 사용자 정보
      * @return ApiResponse 객체 (게시물 생성 성공 메시지 포함)
      */
-    @PostMapping("/newpost")
+    @PostMapping
     public ApiResponse<?> createPost(@RequestPart(value = "data") PostRequestDto postRequestDto,
                                      @RequestPart(value = "file", required = false) MultipartFile image,
                                      @AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {

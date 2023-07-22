@@ -1,0 +1,16 @@
+package team2.spgg.global.exception;
+
+import team2.spgg.global.stringCode.ErrorCodeEnum;
+
+public class UploadException extends RuntimeException{
+    ErrorCodeEnum errorCodeEnum;
+
+    public UploadException(ErrorCodeEnum errorCodeEnum) {
+        this.errorCodeEnum = errorCodeEnum;
+    }
+
+    public UploadException(ErrorCodeEnum errorCodeEnum, Throwable cause) {
+        super(cause);
+        this.errorCodeEnum = errorCodeEnum;
+    }
+}

@@ -4,8 +4,6 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.0'
 }
 
-group = 'Teameight'
-version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
@@ -38,6 +36,8 @@ dependencies {
 
 	implementation 'mysql:mysql-connector-java:8.0.28'
 
+	implementation 'com.google.code.gson:gson:2.8.9'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -56,6 +56,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 
 def querydslSrcDir = 'src/main/generated'
 clean {

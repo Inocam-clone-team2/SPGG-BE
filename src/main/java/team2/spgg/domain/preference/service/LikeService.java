@@ -33,7 +33,6 @@ public class LikeService {
             post.increaseLike();
             return okWithMessage(LIKE_SUCCESS);
         }
-
         removeLike(post, user);
         post.decreaseLike();
         return okWithMessage(LIKE_CANCEL_SUCCESS);

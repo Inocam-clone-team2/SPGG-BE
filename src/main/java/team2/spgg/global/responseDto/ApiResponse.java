@@ -3,6 +3,7 @@ package team2.spgg.global.responseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import team2.spgg.global.stringCode.SuccessCodeEnum;
 
 @Getter
 @Builder
@@ -25,6 +26,14 @@ public class ApiResponse<T> {
                 .success(false)
                 .data(null) // 데이터는 null로 설정
                 .error(errorResponse)
+                .build();
+    }
+
+    public static ApiResponse<?> okWithMessage(SuccessCodeEnum successCodeEnum) {
+        return ApiResponse.builder()
+                .success(true)
+                .data(successCodeEnum.getMessage()) // 데이터는 메시지로 설정
+                .error(null) // 에러는 null로 설정
                 .build();
     }
 }

@@ -125,13 +125,13 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers(GET, "api/post/**").permitAll()
+                                .requestMatchers("/auth").permitAll()
+                                .requestMatchers(GET,"/api").permitAll()
+                                .requestMatchers(GET, "api/post").permitAll()
                                 .requestMatchers(GET, "/ranking").permitAll()
                                 .requestMatchers(GET, "/ranking/master").permitAll()
                                 .requestMatchers(GET, "/ranking/all").permitAll()
                                 .requestMatchers(GET, "/ranking/top10").permitAll()
-                                .requestMatchers(GET,"/api/**").permitAll() // "/api/"로 시작하는 모든 요청을 승인
                                 .anyRequest().authenticated()) // 그 외 모든 요청 인증처리
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

@@ -32,11 +32,12 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
-
     @Column(name = "nickname", nullable = false)
     private String nickname;
+
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
     @Fetch(SUBSELECT)
     @OneToMany(mappedBy = "post", cascade = ALL, orphanRemoval = true)
@@ -53,8 +54,8 @@ public class Post extends Timestamped {
 
     public Post(PostRequestDto postRequestDto, String image, User user) {
         this.title = postRequestDto.getTitle();
-        this.content = postRequestDto.getContent();
         this.nickname = user.getNickname();
+        this.content = postRequestDto.getContent();
         this.image = image;
         this.liked = 0;
         this.user = user;

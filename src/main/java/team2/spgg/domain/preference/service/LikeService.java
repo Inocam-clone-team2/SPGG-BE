@@ -8,75 +8,50 @@ import team2.spgg.domain.post.repository.PostRepository;
 import team2.spgg.domain.preference.entity.Like;
 import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
+import team2.spgg.global.exception.InvalidConditionException;
 import team2.spgg.global.responseDto.ApiResponse;
 
-import static team2.spgg.global.stringCode.SuccessCodeEnum.LIKE_CANCEL_SUCCESS;
-import static team2.spgg.global.stringCode.SuccessCodeEnum.LIKE_SUCCESS;
-import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
+import static team2.spgg.global.stringCode.ErrorCodeEnum.POST_NOT_EXIST;
+import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
+import static team2.spgg.global.utils.ResponseUtils.*;
 
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class PreferenceService {
+public class LikeService {
 
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
 
-    /**
-     * 게시물에 대한 좋아요를 추가 또는 제거하는 메소드입니다.
-     *
-     * @param postId    게시물 ID
-     * @param user      사용자 정보
-     * @return 성공 또는 실패 여부를 반환하는 ApiResponse
-     */
     public ApiResponse<?> updateLike(Long postId, User user) {
-        Post post = postRepository.findByIdWithLikes(postId);
+        Post post = postRepository.findById(postId).orElseThrow(()->
+                new InvalidConditionException(POST_NOT_EXIST));;
 
         if (!isLikedPost(post, user)) {
             createLike(post, user);
             post.increaseLike();
-            postRepository.save(post);
             return okWithMessage(LIKE_SUCCESS);
         }
+
         removeLike(post, user);
-        postRepository.save(post);
+        post.decreaseLike();
         return okWithMessage(LIKE_CANCEL_SUCCESS);
     }
 
-
-    /**
-     * 해당 게시물에 사용자가 좋아요를 눌렀는지 확인합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     * @return 사용자가 좋아요를 눌렀는지 여부
-     */
     private boolean isLikedPost(Post post, User user) {
         return likeRepository.findByPostAndUser(post, user).isPresent();
     }
 
-
-    /**
-     * 게시물에 좋아요를 생성합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     */
     private void createLike(Post post, User user) {
         Like like = new Like(post, user);
         likeRepository.save(like);
     }
 
-    /**
-     * 게시물의 좋아요를 제거합니다.
-     *
-     * @param post      게시물
-     * @param user      사용자 정보
-     */
     private void removeLike(Post post, User user) {
         Like like = likeRepository.findByPostAndUser(post, user).orElseThrow();
         likeRepository.delete(like);
     }
+
 
 }

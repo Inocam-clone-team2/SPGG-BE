@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import team2.spgg.global.stringCode.ErrorCodeEnum;
 
+
 @Getter
 @NoArgsConstructor
 public class ErrorResponse {

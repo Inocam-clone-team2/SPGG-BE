@@ -5,11 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankingEntry {
+
+    private List<RankingEntry> rankingDataList;
+
     private String summonerName;
     private String tier;
     private String rank;
@@ -17,4 +22,7 @@ public class RankingEntry {
     private int wins;
     private int losses;
     private double winRate;
+
 }
+
+

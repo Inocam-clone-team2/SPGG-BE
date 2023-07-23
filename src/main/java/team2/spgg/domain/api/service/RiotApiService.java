@@ -1,6 +1,7 @@
 package team2.spgg.domain.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class RiotApiService {
 
@@ -23,6 +25,7 @@ public class RiotApiService {
 
     @Value("${riot.api.key}")
     public String apiKey;
+
     public RiotApiService() {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
@@ -33,14 +36,18 @@ public class RiotApiService {
     public List<RankingEntry> getAllRankingData() {
         if (rankingDataList.isEmpty()) {
             // 데이터가 없는 경우 API로부터 데이터를 가져와서 저장
+            log.info("API로부터 모든 랭킹 데이터를 가져와 저장합니다.");
             rankingDataList = fetchAndSaveAllRankingData();
-        }   return new ArrayList<>(rankingDataList); // 새로운 ArrayList를 생성하여 반환
+            log.info("로컬 캐시에서 모든 랭킹 데이터를 조회합니다.");
+        }
+        return new ArrayList<>(rankingDataList); // 새로운 ArrayList를 생성하여 반환
     }
 
     // 2. 티어별 특정 랭킹 조회기능
     public List<RankingEntry> getRankingDataDetail(String tier, String rank) {
         String apiUrl = buildApiUrl(tier, rank);
         List<RankingEntry> rankingDataList = getRankingData(apiUrl);
+        log.info("티어: {} / 랭크: {} 에 해당하는 랭킹 데이터를 조회합니다.", tier, rank);
         return rankingDataList;
     }
 
@@ -53,9 +60,10 @@ public class RiotApiService {
 
         // 마스터 랭킹 상위 N명 추가
         List<RankingEntry> masterRankingData = getMasterRankingData();
+        log.info("마스터 랭킹 상위 {}명을 조회합니다.", n);
         topPlayersForEachTier.addAll(getTopPlayers(masterRankingData, n));
-
         // 다이아 이하 랭킹 N명씩 추가
+        log.info("다이아 이하 랭킹 상위 {}명씩 조회합니다.", n);
         topPlayersForEachTier.addAll(getTopPlayersForEachTierByRank(tiers, ranks, n));
 
         return topPlayersForEachTier;
@@ -64,6 +72,7 @@ public class RiotApiService {
     // 4. 마스터 랭킹 조회
     public List<RankingEntry> getMasterRankingData() {
         String masterApiUrl = buildMasterApiUrl();
+        log.info("마스터 랭킹 데이터를 조회합니다.");
         return getRankingDataForMaster(masterApiUrl);
     }
 
@@ -114,16 +123,12 @@ public class RiotApiService {
             return Collections.emptyList();
         } catch (Exception e) {
             // 로깅 추가: 요청과 응답 내용을 출력
-            System.out.println("API 요청 URL: " + apiUrl);
-            System.out.println("API 응답: " + e.getMessage());
+            log.error("API 요청 URL: " + apiUrl, e);
             throw e;
         }
     }
-    /**
-     * 하위 부속 메소드: 모든 랭킹 데이터를 API로부터 가져와 저장하는 메소드
-     *
-     * @return 모든 랭킹 데이터를 담고 있는 리스트
-     */
+
+    // 하위 부속 메소드: 모든 랭킹 데이터를 API로부터 가져와 저장하는 메소드
     private List<RankingEntry> fetchAndSaveAllRankingData() {
         List<RankingEntry> allRankingData = new ArrayList<>();
 
@@ -144,11 +149,7 @@ public class RiotApiService {
         return allRankingData;
     }
 
-    /**
-     * 하위 부속 메소드: RankingData를 RankingEntry로 변환하는 메서드
-     *
-     * @return RankingData를 RankingEntry로 변환하는 함수
-     */
+    // 하위 부속 메소드: RankingData를 RankingEntry로 변환하는 메서드
     private Function<Map<String, Object>, RankingEntry> convertToRankingEntry() {
         return rankingData -> {
             RankingEntry.RankingEntryBuilder builder = RankingEntry.builder()
@@ -168,13 +169,7 @@ public class RiotApiService {
         };
     }
 
-
-    /**
-     * 하위 부속 메소드: API 호출하여 RankingData 가져오는 메서드
-     *
-     * @param apiUrl API 호출 URL
-     * @return API에서 받아온 랭킹 데이터를 담고 있는 리스트
-     */
+    // 하위 부속 메소드: API 호출하여 RankingData 가져오는 메서드
     private List<RankingEntry> getRankingData(String apiUrl) {
         try {
             ResponseEntity<List<Map<String, Object>>> responseEntity = restTemplate.exchange(
@@ -195,8 +190,7 @@ public class RiotApiService {
             return Collections.emptyList();
         } catch (Exception e) {
             // 로깅 추가: 요청과 응답 내용을 출력
-            System.out.println("API 요청 URL: " + apiUrl);
-            System.out.println("API 응답: " + e.getMessage());
+            log.error("API 요청 URL: " + apiUrl, e);
             throw e;
         }
     }
@@ -244,7 +238,6 @@ public class RiotApiService {
                 .limit(n)
                 .collect(Collectors.toList());
     }
-
 
     // API URL을 생성하는 보조 메서드
     private String buildApiUrl(String tier, String rank) {

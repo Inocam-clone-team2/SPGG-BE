@@ -1,6 +1,7 @@
 package team2.spgg.domain.preference.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team2.spgg.domain.post.entity.Post;
@@ -15,7 +16,7 @@ import static team2.spgg.global.stringCode.ErrorCodeEnum.POST_NOT_EXIST;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
 import static team2.spgg.global.utils.ResponseUtils.*;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,15 +27,21 @@ public class LikeService {
 
     public ApiResponse<?> updateLike(Long postId, User user) {
         Post post = postRepository.findById(postId).orElseThrow(()->
-                new InvalidConditionException(POST_NOT_EXIST));;
+                new InvalidConditionException(POST_NOT_EXIST));
+
+        String nickname = user.getNickname();
+        String postTitle = post.getTitle();   // 게시물 제목 가져오기
 
         if (!isLikedPost(post, user)) {
             createLike(post, user);
             post.increaseLike();
+            log.info("'{}'님이 '{}'에 좋아요를 추가했습니다.", nickname, postTitle);
             return okWithMessage(LIKE_SUCCESS);
         }
+
         removeLike(post, user);
         post.decreaseLike();
+        log.info("'{}'님이 '{}'의 좋아요를 취소했습니다.", nickname, postTitle);
         return okWithMessage(LIKE_CANCEL_SUCCESS);
     }
 

@@ -1,6 +1,7 @@
 package team2.spgg.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ import static team2.spgg.global.stringCode.ErrorCodeEnum.USER_NOT_MATCH;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
 import static team2.spgg.global.utils.ResponseUtils.ok;
 import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
-
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -37,12 +38,14 @@ public class PostService {
     public ApiResponse<?> createPost(PostRequestDto postRequestDto, MultipartFile image, User user) {
         String imageUrl = s3Service.upload(image);
         postRepository.save(new Post(postRequestDto, imageUrl, user));
+        log.info("'{}'님이 새로운 게시물을 생성했습니다.", user.getNickname());
         return okWithMessage(POST_CREATE_SUCCESS);
     }
 
     public ApiResponse<?> getSinglePost(Long postId) {
         Post post = postRepository.findDetailPost(postId).orElseThrow(() ->
                 new InvalidConditionException(POST_NOT_EXIST));
+        log.info("게시물 ID '{}' 조회 성공", postId);
         return ok(new PostResponseDto(post));
     }
 
@@ -50,6 +53,7 @@ public class PostService {
     public ApiResponse<?> updatePost(Long postId, PostRequestDto postRequestDto, MultipartFile image, User user) {
         Post post = confirmPost(postId, user);
         updatePostDetail(postRequestDto, image, post);
+        log.info("'{}'님이 게시물 ID '{}'의 정보를 업데이트했습니다.", user.getNickname(), postId);
         return okWithMessage(POST_UPDATE_SUCCESS);
     }
 
@@ -58,6 +62,7 @@ public class PostService {
         Post post = confirmPost(postId, user);
         deleteImage(post);
         postRepository.delete(post);
+        log.info("'{}'님이 게시물 ID '{}'를 삭제했습니다.", user.getNickname(), postId);
         return okWithMessage(POST_DELETE_SUCCESS);
     }
 

@@ -22,5 +22,8 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Query(value = "SELECT * FROM post WHERE title LIKE %?1% OR content LIKE %?1% ORDER BY createDate DESC" , nativeQuery = true)
     List<Post> findByContent(String content);
 
+    @Query(value = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.commentList WHERE p.title LIKE %:searchKeyword% OR p.content LIKE %:searchKeyword% ORDER BY p.createdAt DESC")
+    Slice<Post> findByTitleOrContentContainingWithComments(@Param("searchKeyword") String searchKeyword, Pageable pageable);
 }
+
 

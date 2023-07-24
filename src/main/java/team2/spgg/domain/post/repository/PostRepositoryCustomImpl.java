@@ -35,6 +35,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
         List<PostResponseDto> result = query
                 .select(new QPostResponseDto(
                         QPost.post.id,
+                        QPost.post.category,
                         QPost.post.title,
                         QPost.post.user.nickname,
                         QPost.post.content,

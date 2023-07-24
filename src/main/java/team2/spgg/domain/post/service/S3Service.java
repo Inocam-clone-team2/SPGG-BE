@@ -28,8 +28,9 @@ public class S3Service {
     private final AmazonS3 amazonS3;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
     /**
-     * S3에 이미지 업로드 및 이미지 URL 반환
+     * 이미지를 S3에 업로드하고 업로드된 이미지의 S3 URL을 반환합니다.
      *
      * @param multipartFile 업로드할 이미지 파일
      * @return 업로드된 이미지의 S3 URL
@@ -43,13 +44,17 @@ public class S3Service {
             String fileName = generateFileName(multipartFile.getOriginalFilename());
             String contentType = multipartFile.getContentType();
             putS3(fileBytes, fileName, contentType);
-            return generateUnsignedUrl(fileName);
+            String imageUrl = generateUnsignedUrl(fileName);
+            log.info("이미지 업로드 완료: " + imageUrl);
+            return imageUrl;
         } catch (IOException e) {
             throw new UploadException(ErrorCodeEnum.UPLOAD_FAIL, e);
         }
     }
+
+
     /**
-     * S3에 이미지를 업로드합니다.
+     * 이미지를 S3에 업로드합니다.
      *
      * @param fileBytes   업로드할 이미지의 바이트 배열
      * @param fileName    업로드할 이미지의 파일 이름
@@ -63,8 +68,9 @@ public class S3Service {
         amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
         log.info("파일 생성: " + fileName);
     }
+
     /**
-     * S3에서 이미지 삭제
+     * S3에서 이미지를 삭제합니다.
      *
      * @param imageUrl 삭제할 이미지의 URL
      * @throws IllegalArgumentException 이미지 삭제 실패 시 발생하는 예외
@@ -84,6 +90,7 @@ public class S3Service {
             }
         }
     }
+
     /**
      * 이미지 URL에서 S3 객체 키를 추출합니다.
      *
@@ -94,11 +101,12 @@ public class S3Service {
     private String extractObjectKeyFromUrl(String imageUrl) {
         try {
             URL url = new URL(imageUrl);
-            return url.getPath().substring(1); // Remove the leading slash
+            return url.getPath().substring(1); // leading slash 제거
         } catch (Exception e) {
             throw new UploadException(ErrorCodeEnum.URL_INVALID, e);
         }
     }
+
     /**
      * 업로드할 이미지 파일의 원본 파일 이름으로 고유한 파일 이름을 생성합니다.
      *
@@ -114,6 +122,7 @@ public class S3Service {
         }
         throw new UploadException(ErrorCodeEnum.FILE_INVALID);
     }
+
     /**
      * 파일 이름에서 확장자를 추출합니다.
      *
@@ -130,6 +139,7 @@ public class S3Service {
         }
         throw new UploadException(ErrorCodeEnum.EXTRACT_INVALID);
     }
+
     /**
      * S3 객체에 대한 유효기간이 없는 서명되지 않은 URL을 생성합니다.
      *

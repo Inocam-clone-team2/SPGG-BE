@@ -36,7 +36,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 .select(new QPostResponseDto(
                         QPost.post.id,
                         QPost.post.title,
-                        QPost.post.nickname,
+                        QPost.post.user.nickname,
                         QPost.post.content,
                         QPost.post.createdAt,
                         QPost.post.image,
@@ -61,7 +61,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
      * @return 사용자명 조건에 해당하는 BooleanExpression 객체
      */
     private BooleanExpression usernameEq(String usernameCond) {
-        return hasText(usernameCond) ? post.nickname.eq(usernameCond) : null;
+        return hasText(usernameCond) ? post.user.nickname.eq(usernameCond) : null;
     }
 
     /**

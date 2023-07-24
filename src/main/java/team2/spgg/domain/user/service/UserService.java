@@ -1,6 +1,7 @@
 package team2.spgg.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import team2.spgg.global.stringCode.SuccessCodeEnum;
 import team2.spgg.global.utils.ResponseUtils;
 
 import java.util.Optional;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,12 +25,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * 회원 가입을 처리하는 메소드입니다.
-     *
-     * @param signupRequestDto 회원 가입 요청 DTO
-     * @return 처리 결과에 대한 ApiResponse
-     */
     public ApiResponse<?> signup(SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String nickname = signupRequestDto.getNickname();
@@ -41,15 +36,12 @@ public class UserService {
         User user = new User(email, nickname, password, role);
         userRepository.save(user);
 
+        log.info("'{}' 이메일을 가진 사용자가 가입했습니다.", email);
+
         return ResponseUtils.okWithMessage(SuccessCodeEnum.USER_SIGNUP_SUCCESS);
     }
 
-    /**
-     * 중복된 회원 이름인지 확인합니다.
-     *
-     * @param email 회원 이름
-     * @throws InvalidConditionException 중복된 회원 이름이 있을 경우 발생하는 예외
-     */
+
     private void checkDuplicatedEmail(String email) {
         Optional<User> found = userRepository.findByEmail(email);
         if (found.isPresent()) {

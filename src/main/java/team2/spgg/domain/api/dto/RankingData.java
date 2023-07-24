@@ -20,8 +20,4 @@ public class RankingData {
     private int losses;
     private double winRate;
 
-    public double getWinRate() {
-        int totalGames = (int) (wins + losses);
-        return (double) wins / totalGames * 100;
-    }
 }

@@ -14,9 +14,7 @@ public enum SuccessCodeEnum {
     COMMENT_UPDATE_SUCCESS("댓글 수정 완료"),
     COMMENT_DELETE_SUCCESS("댓글 삭제 성공"),
     LIKE_SUCCESS("좋아요 성공"),
-    LIKE_CANCEL_SUCCESS("좋아요 취소"),
-    DISLIKE_SUCCESS("싫어요 성공"),
-    DISLIKE_CANCEL_SUCCESS("싫어요 취소");
+    LIKE_CANCEL_SUCCESS("좋아요 취소");
 
     private final String message;
 

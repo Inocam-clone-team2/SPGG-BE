@@ -23,6 +23,7 @@ import team2.spgg.global.security.UserDetailsServiceImpl;
 import java.util.Arrays;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 
@@ -125,11 +126,14 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers(GET, "/post/**").permitAll()
-                                .requestMatchers(GET, "/ranking").permitAll() // "/aa/ranking" 경로를 모든 사용자에게 허용
-                                .requestMatchers(GET, "/ranking/all").permitAll() // "/aa/ranking" 경로를 모든 사용자에게 허용
-                                .requestMatchers(GET,"/api/**").permitAll() // "/api/"로 시작하는 모든 요청을 승인
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers(GET,"/api/**").permitAll()
+                                .requestMatchers(GET, "/api/post/**").permitAll()
+                                .requestMatchers(GET, "/ranking").permitAll()
+                                .requestMatchers(GET, "/ranking/master").permitAll()
+                                .requestMatchers(GET, "/ranking/all").permitAll()
+                                .requestMatchers(GET, "/ranking/top10").permitAll()
+                                .requestMatchers(GET,"api/search/test").permitAll()
                                 .anyRequest().authenticated()) // 그 외 모든 요청 인증처리
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

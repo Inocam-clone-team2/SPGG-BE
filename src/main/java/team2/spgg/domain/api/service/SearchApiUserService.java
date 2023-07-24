@@ -50,7 +50,6 @@ public class SearchApiUserService {
             System.out.println("apiUrl = " + apiUrl);
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String[]> MatchId = restTemplate.getForEntity(apiUrl, String[].class);
-            System.out.println(" 시작@@@");
             String[] dataArray = MatchId.getBody();
             return findMatchById(dataArray, puuid);
         } catch (Exception e) {
@@ -65,7 +64,7 @@ public class SearchApiUserService {
                 String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
                 System.out.println("apiUrl = " + apiUrl);
                 RestTemplate restTemplate = new RestTemplate();
-                MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);
+                MatchDto matchDto= restTemplate.getForObject(apiUrl, MatchDto.class);
                 assert matchDto != null;
                 List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid);
                 matchDto.getInfo().updateParticipantsList(participantDtoList);
@@ -76,6 +75,7 @@ public class SearchApiUserService {
 
             return matchDtos;
         } catch (Exception e) {
+            System.out.println("익셉션");
             return null;
         }
     }

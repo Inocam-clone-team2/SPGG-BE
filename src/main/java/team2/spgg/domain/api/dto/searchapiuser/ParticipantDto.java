@@ -1,11 +1,9 @@
 package team2.spgg.domain.api.dto.searchapiuser;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -25,7 +23,6 @@ public class ParticipantDto {
     //cs관련. 두개 더하면 총 cs
     private Integer totalMinionsKilled;
     private Integer neutralMinionsKilled;
-    private Integer totalCs = totalMinionsKilled+neutralMinionsKilled;
     //각 멀티킬 횟수. 0개면 pass, 1개이상이면 가장 높은 거 출력.
     private Integer doubleKills;
     private Integer tripleKills;

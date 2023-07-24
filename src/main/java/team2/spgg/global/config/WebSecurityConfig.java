@@ -23,6 +23,7 @@ import team2.spgg.global.security.UserDetailsServiceImpl;
 import java.util.Arrays;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 
@@ -132,6 +133,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(GET, "/ranking/master").permitAll()
                                 .requestMatchers(GET, "/ranking/all").permitAll()
                                 .requestMatchers(GET, "/ranking/top10").permitAll()
+                                .requestMatchers(GET,"api/search/test").permitAll()
                                 .anyRequest().authenticated()) // 그 외 모든 요청 인증처리
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

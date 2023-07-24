@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import team2.spgg.global.jwt.JwtAuthenticationFilter;
 import team2.spgg.global.jwt.JwtAuthorizationFilter;
 import team2.spgg.global.jwt.JwtExceptionFilter;
@@ -90,19 +91,31 @@ public class WebSecurityConfig {
      *
      * @return CorsConfigurationSource 인스턴스
      */
+//    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration config = new CorsConfiguration();
+//
+//        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+//        config.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT","OPTIONS"));
+//        config.setAllowedHeaders(Arrays.asList("*"));
+//        config.addExposedHeader("*");
+//        config.setAllowCredentials(true);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", config);
+//        return source;
+//    }
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        config.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT","OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.addExposedHeader("*");
-        config.setAllowCredentials(true);
-
+    public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.addExposedHeader("*");
+        source.registerCorsConfiguration("/**",config);
+        return new CorsFilter(source);
     }
 
     /**
@@ -133,12 +146,12 @@ public class WebSecurityConfig {
                                 .requestMatchers(GET, "/ranking/master").permitAll()
                                 .requestMatchers(GET, "/ranking/all").permitAll()
                                 .requestMatchers(GET, "/ranking/top10").permitAll()
-                                .requestMatchers(GET,"api/search/test").permitAll()
+                                .requestMatchers(GET,"/api/search/test").permitAll()
                                 .anyRequest().authenticated()) // 그 외 모든 요청 인증처리
+                .addFilter(corsFilter())
                 .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter(), JwtAuthenticationFilter.class);
-
         return http.build();
     }
 }

@@ -35,12 +35,14 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
         List<PostResponseDto> result = query
                 .select(new QPostResponseDto(
                         QPost.post.id,
+                        QPost.post.category,
                         QPost.post.title,
                         QPost.post.user.nickname,
                         QPost.post.content,
                         QPost.post.createdAt,
                         QPost.post.image,
-                        QPost.post.liked
+                        QPost.post.liked,
+                        QPost.post.commentList.size().intValue()
                 ))
                 .from(QPost.post)
                 .where(

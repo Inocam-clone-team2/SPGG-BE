@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.entity.Post;
 import team2.spgg.domain.post.repository.PostRepository;
 import team2.spgg.domain.preference.entity.Like;
@@ -11,6 +12,7 @@ import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
 import team2.spgg.global.exception.InvalidConditionException;
 import team2.spgg.global.responseDto.ApiResponse;
+import team2.spgg.global.utils.ResponseUtils;
 
 import static team2.spgg.global.stringCode.ErrorCodeEnum.POST_NOT_EXIST;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
@@ -25,8 +27,8 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
 
-    public ApiResponse<?> updateLike(Long postId, User user) {
-        Post post = postRepository.findById(postId).orElseThrow(()->
+    public PostResponseDto updateLike(Long postId, User user) {
+        Post post = postRepository.findById(postId).orElseThrow(() ->
                 new InvalidConditionException(POST_NOT_EXIST));
 
         String nickname = user.getNickname();
@@ -36,14 +38,16 @@ public class LikeService {
             createLike(post, user);
             post.increaseLike();
             log.info("'{}'님이 '{}'에 좋아요를 추가했습니다.", nickname, postTitle);
-            return okWithMessage(LIKE_SUCCESS);
+        } else {
+            removeLike(post, user);
+            post.decreaseLike();
+            log.info("'{}'님이 '{}'의 좋아요를 취소했습니다.", nickname, postTitle);
         }
 
-        removeLike(post, user);
-        post.decreaseLike();
-        log.info("'{}'님이 '{}'의 좋아요를 취소했습니다.", nickname, postTitle);
-        return okWithMessage(LIKE_CANCEL_SUCCESS);
+        return new PostResponseDto(post);
     }
+
+
 
     private boolean isLikedPost(Post post, User user) {
         return likeRepository.findByPostAndUser(post, user).isPresent();

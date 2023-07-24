@@ -56,14 +56,14 @@ public class Post extends Timestamped {
     @OnDelete(action = CASCADE)
     private User user;
 
-    public Post(PostRequestDto postRequestDto, String image, User user, Category category) {
+    public Post(PostRequestDto postRequestDto, String image, User user) {
         this.title = postRequestDto.getTitle();
         this.nickname = user.getNickname();
         this.content = postRequestDto.getContent();
         this.image = image;
         this.liked = 0;
         this.user = user;
-        this.category = category;// 카테고리 정보 추가
+        this.category = getCategory();// 카테고리 정보 추가
     }
 
     public void update(PostRequestDto postRequestDto) {

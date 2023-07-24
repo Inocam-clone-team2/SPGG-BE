@@ -40,15 +40,9 @@ public class PostService {
     }
 
     @Transactional
-    public ApiResponse<?> createPost(PostRequestDto postRequestDto, MultipartFile image, User user, Long categoryId) {
-        Category category = null;
-        if (categoryId != null) {
-            category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new InvalidConditionException(CATEGORY_NOT_EXIST));
-        }
-
+    public ApiResponse<?> createPost(PostRequestDto postRequestDto, MultipartFile image, User user) {
         String imageUrl = s3Service.upload(image);
-        postRepository.save(new Post(postRequestDto, imageUrl, user, category));
+        postRepository.save(new Post(postRequestDto, imageUrl, user));
         log.info("'{}'님이 새로운 게시물을 생성했습니다.", user.getNickname());
         return ResponseUtils.okWithMessage(POST_CREATE_SUCCESS);
     }

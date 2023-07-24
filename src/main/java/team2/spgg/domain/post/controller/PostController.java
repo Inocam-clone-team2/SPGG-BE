@@ -45,11 +45,10 @@ public class PostController {
 
 
     @PostMapping
-    public ApiResponse<?> createPost(@PathVariable Long categoryId,
-                                     @RequestPart(value = "data") PostRequestDto postRequestDto,
+    public ApiResponse<?> createPost(@RequestPart(value = "data") PostRequestDto postRequestDto,
                                      @RequestPart(value = "file", required = false) MultipartFile image,
                                      @AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
-        return postService.createPost(postRequestDto, image, userDetailsImpl.getUser(), categoryId);
+        return postService.createPost(postRequestDto, image, userDetailsImpl.getUser());
     }
 
     @PutMapping("/{postId}")

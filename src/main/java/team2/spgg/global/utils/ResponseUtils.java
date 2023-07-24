@@ -2,6 +2,7 @@ package team2.spgg.global.utils;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import team2.spgg.global.responseDto.ApiResponse;
 import team2.spgg.global.responseDto.ErrorResponse;
 import team2.spgg.global.stringCode.ErrorCodeEnum;
@@ -25,4 +26,5 @@ public class ResponseUtils {
     public static ApiResponse<?> customError(ErrorCodeEnum errorCodeEnum) {
         return new ApiResponse<>(false, null, new ErrorResponse(errorCodeEnum));
     }
+
 }

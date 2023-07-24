@@ -48,6 +48,10 @@ public class Post extends Timestamped {
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id") // 카테고리 정보를 가리키는 외래키
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = CASCADE)
     private User user;
@@ -59,6 +63,7 @@ public class Post extends Timestamped {
         this.image = image;
         this.liked = 0;
         this.user = user;
+        this.category = getCategory();// 카테고리 정보 추가
     }
 
     public void update(PostRequestDto postRequestDto) {
@@ -86,4 +91,5 @@ public class Post extends Timestamped {
             this.liked -= 1;
         }
     }
+
 }

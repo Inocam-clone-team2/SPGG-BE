@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team2.spgg.domain.comment.dto.CommentResponseDto;
+import team2.spgg.domain.post.entity.Category;
 import team2.spgg.domain.post.entity.Post;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private String image;
     private long liked;
+    private Category category; // 카테고리 정보 추가
 
     @QueryProjection
     public PostResponseDto(Long id, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked) {
@@ -32,7 +34,9 @@ public class PostResponseDto {
         this.createdAt = createdAt;
         this.image = image;
         this.liked = liked;
+        this.category = category; // 카테고리 정보 추가
     }
+
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
@@ -45,5 +49,6 @@ public class PostResponseDto {
         this.createdAt = post.getCreatedAt();
         this.image = post.getImage();
         this.liked = post.getLiked();
+        this.category = post.getCategory();
     }
 }

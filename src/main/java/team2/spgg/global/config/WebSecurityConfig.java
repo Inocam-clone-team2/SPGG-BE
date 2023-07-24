@@ -128,7 +128,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers(GET,"/api/**").permitAll()
-                                .requestMatchers(GET, "api/post/**").permitAll()
+                                .requestMatchers(GET, "/api/post/**").permitAll()
                                 .requestMatchers(GET, "/ranking").permitAll()
                                 .requestMatchers(GET, "/ranking/master").permitAll()
                                 .requestMatchers(GET, "/ranking/all").permitAll()

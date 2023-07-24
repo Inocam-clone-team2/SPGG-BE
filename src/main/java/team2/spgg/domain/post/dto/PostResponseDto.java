@@ -22,18 +22,20 @@ public class PostResponseDto {
     private String nickname;
     private String content;
     private LocalDateTime createdAt;
-    private List<CommentResponseDto> commentList = new ArrayList<>();
+    private List<CommentResponseDto> commentList;
     private String image;
     private long liked;
+    private int commentCount;
 
     @QueryProjection
-    public PostResponseDto(Long id, Category category, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked) {
+    public PostResponseDto(Long id, Category category, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked, int commentCount) {
         this.id = id;
         this.category = category;
         this.title = title;
         this.nickname = nickname;
         this.content = content;
         this.createdAt = createdAt;
+        this.commentCount = commentCount;
         this.image = image;
         this.liked = liked;
     }

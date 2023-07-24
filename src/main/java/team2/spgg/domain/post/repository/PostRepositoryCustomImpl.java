@@ -41,7 +41,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                         QPost.post.content,
                         QPost.post.createdAt,
                         QPost.post.image,
-                        QPost.post.liked
+                        QPost.post.liked,
+                        QPost.post.commentList.size().intValue()
                 ))
                 .from(QPost.post)
                 .where(

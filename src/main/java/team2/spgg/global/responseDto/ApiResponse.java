@@ -3,6 +3,8 @@ package team2.spgg.global.responseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Slice;
+import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.global.stringCode.SuccessCodeEnum;
 
 @Getter
@@ -36,4 +38,5 @@ public class ApiResponse<T> {
                 .error(null) // 에러는 null로 설정
                 .build();
     }
+
 }

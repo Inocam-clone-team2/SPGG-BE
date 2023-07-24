@@ -13,7 +13,7 @@ import team2.spgg.domain.user.service.UserService;
 import team2.spgg.global.responseDto.ApiResponse;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserController {
 

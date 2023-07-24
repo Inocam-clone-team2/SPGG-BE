@@ -126,7 +126,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers(GET,"/api/**").permitAll()
                                 .requestMatchers(GET, "api/post/**").permitAll()
                                 .requestMatchers(GET, "/ranking").permitAll()

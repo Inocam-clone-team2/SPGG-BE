@@ -3,7 +3,7 @@ package team2.spgg.domain.api.dto.searchapiuser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-@Data
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

@@ -1,83 +1,59 @@
 package team2.spgg.domain.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import team2.spgg.domain.api.dto.searchapiuser.SummonerDto;
-import team2.spgg.domain.api.dto.searchapiuser.FinalResponseDto;
-import team2.spgg.domain.api.dto.searchapiuser.MatchDto;
-import team2.spgg.domain.api.dto.searchapiuser.ParticipantDto;
+import team2.spgg.domain.api.dto.searchapiuser.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class SearchApiUserService {
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Integer count = 5;
     @Value("${riot.api.key}") // application.properties에 정의된 riot.api.key 값을 읽어옵니다.
     public String apiKey;
 
-    public ResponseEntity<FinalResponseDto> getSummoner(String summonerName) throws IOException {
-        try {
-            String apiUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summonerName + "?api_key=" + apiKey;
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<SummonerDto> responseEntity = restTemplate.getForEntity(apiUrl, SummonerDto.class);
-            SummonerDto summonerDto = responseEntity.getBody();
-            assert summonerDto != null;
-            List<MatchDto> dataList = getMatch(summonerDto.getPuuid());
-            summonerDto.updateForResponse();
-            FinalResponseDto finalResponseDto = FinalResponseDto.builder().summoner(summonerDto).matchInfo(new ArrayList<>()).build();
-            finalResponseDto.updateInfoForResponse(dataList);
-            return ResponseEntity.ok(finalResponseDto);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public ResponseEntity<FinalResponseDto> getSummoner(String summonerName) {
+        String apiUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summonerName + "?api_key=" + apiKey;
+        UserAverageDto userAverageDto = new UserAverageDto();
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<SummonerDto> responseEntity = restTemplate.getForEntity(apiUrl, SummonerDto.class);
+        SummonerDto summonerDto = responseEntity.getBody();
+        List<MatchDto> dataList = getMatch(summonerDto.getPuuid(), userAverageDto);
+        summonerDto.updateForResponse();
+        FinalResponseDto finalResponseDto = FinalResponseDto.builder()
+                .summoner(summonerDto)
+                .matchInfo(new ArrayList<>())
+                .userAverageDto(userAverageDto).build();
+        finalResponseDto.updateInfoForResponse(dataList);
+        return ResponseEntity.ok(finalResponseDto);
+    }
+
+    public List<MatchDto> getMatch(String puuid, UserAverageDto userAverageDto) {
+        String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
+                + "?type=ranked&start=0&count=" + count + "&api_key=" + apiKey;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String[]> MatchId = restTemplate.getForEntity(apiUrl, String[].class);
+        String[] dataArray = MatchId.getBody();
+        return findMatchById(dataArray, puuid, userAverageDto);
 
     }
 
-    public List<MatchDto> getMatch(String puuid) {
-        try {
-            String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
-                    + "?type=ranked&start=0&count=" + count + "&api_key=" + apiKey;
-
-            System.out.println("apiUrl = " + apiUrl);
+    public List<MatchDto> findMatchById(String[] matchIds, String puuid, UserAverageDto userAverageDto) {
+        List<MatchDto> matchDtos = new ArrayList<>();
+        for (String matchId : matchIds) {
+            String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String[]> MatchId = restTemplate.getForEntity(apiUrl, String[].class);
-            String[] dataArray = MatchId.getBody();
-            return findMatchById(dataArray, puuid);
-        } catch (Exception e) {
-            return null;
+            MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);
+            List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid, userAverageDto);
+            matchDto.getInfo().updateParticipantsList(participantDtoList);
+            matchDtos.add(matchDto);
         }
-    }
-
-    public List<MatchDto> findMatchById(String[] matchIds, String puuid) {
-        try {
-            List<MatchDto> matchDtos = new ArrayList<>();
-            for (String matchId : matchIds) {
-                String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
-                System.out.println("apiUrl = " + apiUrl);
-                RestTemplate restTemplate = new RestTemplate();
-                MatchDto matchDto= restTemplate.getForObject(apiUrl, MatchDto.class);
-                assert matchDto != null;
-                List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid);
-                matchDto.getInfo().updateParticipantsList(participantDtoList);
-
-                System.out.println("update완료");
-                matchDtos.add(matchDto);
-            }
-
-            return matchDtos;
-        } catch (Exception e) {
-            System.out.println("익셉션");
-            return null;
-        }
+        return matchDtos;
     }
 
     private Integer findSubRune(ParticipantDto participantDto) {
@@ -88,13 +64,24 @@ public class SearchApiUserService {
         return participantDto.getPerks().getStyles().get(0).getSelections().get(0).getPerk();
     }
 
-    public List<ParticipantDto> findParticipantByPuuid(List<ParticipantDto> participants, String puuid) {
+    public List<ParticipantDto> findParticipantByPuuid(List<ParticipantDto> participants, String puuid, UserAverageDto userAverageDto) {
         List<ParticipantDto> participantDtoList = (participants.stream()
                 .map(participant -> {
                     if (participant.getPuuid().equals(puuid)) {
                         participant.updateRune(findMainRune(participant), findSubRune(participant));
                         participant.updateSpell(
                                 placeSpellNameBySpellId(participant.getSummoner1Id()), placeSpellNameBySpellId(participant.getSummoner2Id()));
+                        if (!userAverageDto.getResentChampionList().containsKey(participant.getChampionName())) {
+                            userAverageDto.getResentChampionList().put(participant.getChampionName(), RecentCountDto.builder()
+                                    .killCount(participant.getKills())
+                                    .deathCount(participant.getDeaths())
+                                    .assistCount(participant.getAssists())
+                                    .winCount(participant.getWin() ? 1 : 0)
+                                    .loseCount(participant.getWin() ? 0 : 1)
+                                    .build());
+                        } else {
+                            userAverageDto.getResentChampionList().get(participant.getChampionName()).addCount(participant);
+                        }
                         return participant; // filter에 걸리면 수정 없이 그대로 반환
                     } else {
                         // filter에 걸리지 않으면 새로운 ParticipantDto 객체를 생성하여 반환

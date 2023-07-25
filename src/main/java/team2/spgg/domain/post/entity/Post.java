@@ -32,6 +32,8 @@ public class Post extends Timestamped {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+    private int views;
+
     @Column(nullable = false)
     private String title;
 
@@ -62,6 +64,7 @@ public class Post extends Timestamped {
         this.nickname = user.getNickname();
         this.content = postRequestDto.getContent();
         this.image = image;
+        this.views = 0;
         this.liked = 0;
         this.user = user;
     }
@@ -75,6 +78,9 @@ public class Post extends Timestamped {
         this.title = postRequestDto.getTitle();
         this.content = postRequestDto.getContent();
         this.image = image;
+    }
+    public void increaseViews() {
+        this.views++;
     }
 
     public void addComment(Comment comment) {

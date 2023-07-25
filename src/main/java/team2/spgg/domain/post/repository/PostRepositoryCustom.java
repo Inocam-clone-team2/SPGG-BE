@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
-import team2.spgg.domain.post.entity.Post;
 
 public interface PostRepositoryCustom {
 

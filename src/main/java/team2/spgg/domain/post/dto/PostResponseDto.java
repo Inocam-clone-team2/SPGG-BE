@@ -9,7 +9,6 @@ import team2.spgg.domain.post.entity.Category;
 import team2.spgg.domain.post.entity.Post;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

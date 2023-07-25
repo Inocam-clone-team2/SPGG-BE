@@ -12,7 +12,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import team2.spgg.global.jwt.JwtAuthenticationFilter;
@@ -21,10 +20,7 @@ import team2.spgg.global.jwt.JwtExceptionFilter;
 import team2.spgg.global.jwt.JwtProvider;
 import team2.spgg.global.security.UserDetailsServiceImpl;
 
-import java.util.Arrays;
-
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 

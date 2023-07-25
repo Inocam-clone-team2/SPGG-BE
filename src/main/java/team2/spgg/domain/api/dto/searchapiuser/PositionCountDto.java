@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PositionCountDto {
     private Integer count;
-    private Float Odds=0F;
+    private Float Odds;
     public void addPositionCount(){
         if(count!=null) {
             this.count = this.count+1;

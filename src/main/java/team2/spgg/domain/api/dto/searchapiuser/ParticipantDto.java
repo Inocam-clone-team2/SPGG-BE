@@ -20,6 +20,7 @@ public class ParticipantDto {
     private Integer kills;
     private Integer deaths;
     private Integer assists;
+    private Float kda;
     private Boolean isPerpect=false;
     //cs관련. 두개 더하면 총 cs
     private Integer totalMinionsKilled;
@@ -53,7 +54,7 @@ public class ParticipantDto {
     private Integer item6;
     //레드팀 or 블루팀. 100 or 200으로 표현
     private Integer teamId;
-    private String team = "";
+    private String team;
     //이겼는지 여부. true or false
     private Boolean win;
 
@@ -91,5 +92,8 @@ public class ParticipantDto {
 
     public void updateCs() {
         this.totalCs = this.totalMinionsKilled + this.neutralMinionsKilled;
+    }
+    public void updateKda(){
+        this.kda = (float)(this.kills+this.assists)/this.deaths;
     }
 }

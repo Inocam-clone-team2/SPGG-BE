@@ -70,6 +70,7 @@ public class SearchApiUserService {
             String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
             RestTemplate restTemplate = new RestTemplate();
             MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);
+            matchDto.getInfo().updateGameTime(System.currentTimeMillis());
             List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid, userAverageDto);
             matchDto.getInfo().updateParticipantsList(participantDtoList);
             matchDtos.add(matchDto);
@@ -92,6 +93,8 @@ public class SearchApiUserService {
                         userAverageDto.addUserTotalKda(participant.getWin(), participant.getKills(), participant.getDeaths(), participant.getAssists());
                         if (participant.getDeaths() == 0) {
                             participant.updateIsPerpect();
+                        } else{
+                            participant.updateKda();
                         }
                         participant.updateCs();
                         participant.updateRune(findMainRune(participant), findSubRune(participant));

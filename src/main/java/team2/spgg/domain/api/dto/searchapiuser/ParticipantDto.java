@@ -20,6 +20,7 @@ public class ParticipantDto {
     private Integer kills;
     private Integer deaths;
     private Integer assists;
+    private Boolean isPerpect=false;
     //cs관련. 두개 더하면 총 cs
     private Integer totalMinionsKilled;
     private Integer neutralMinionsKilled;
@@ -51,6 +52,7 @@ public class ParticipantDto {
     private Integer item6;
     //레드팀 or 블루팀. 100 or 200으로 표현
     private Integer teamId;
+    private String team = "";
     //이겼는지 여부. true or false
     private Boolean win;
 
@@ -59,6 +61,7 @@ public class ParticipantDto {
         this.summonerName= summonerName;
         this.championName = championName;
         this.teamId=teamId;
+        this.isPerpect=null;
     }
     public void updateRune(Integer mainRune, Integer subRune){
         this.mainRune= mainRune;
@@ -72,5 +75,16 @@ public class ParticipantDto {
         this.summoner1Id = null;
         this.summoner2Id = null;
 
+    }
+    public void updateTeamToString(){
+        if(this.teamId==100){
+            this.team = "Red";
+        }else{
+            this.team = "Blue";
+        }
+        this.teamId=null;
+    }
+    public void updateIsPerpect() {
+        this.isPerpect=true;
     }
 }

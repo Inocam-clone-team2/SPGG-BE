@@ -3,9 +3,7 @@ package team2.spgg.domain.post.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.*;
 import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
 import team2.spgg.domain.post.dto.QPostResponseDto;
@@ -23,15 +21,8 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
 
     private final JPAQueryFactory query;
 
-    /**
-     * 조건에 맞는 게시물을 페이징 처리하여 검색하는 메소드입니다.
-     *
-     * @param condition 검색 조건
-     * @param pageable  페이지 정보
-     * @return 페이징된 게시물 목록
-     */
     @Override
-    public Slice<PostResponseDto> serachPostBySlice(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostResponseDto> serachPostByPage(PostSearchCondition condition, Pageable pageable) {
         List<PostResponseDto> result = query
                 .select(new QPostResponseDto(
                         QPost.post.id,
@@ -54,10 +45,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        return checkEndPage(pageable, result);
+        return new PageImpl<>(result, pageable, result.size());
     }
+
     @Override
-    public Slice<PostResponseDto> searchPostBySliceByPopularity(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostResponseDto> searchPostByPageByPopularity(PostSearchCondition condition, Pageable pageable) {
         List<PostResponseDto> result = query
                 .select(new QPostResponseDto(
                         QPost.post.id,
@@ -80,10 +72,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        return checkEndPage(pageable, result);
+        return new PageImpl<>(result, pageable, result.size());
     }
+
     @Override
-    public Slice<PostResponseDto> searchPostBySliceByMostView(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostResponseDto> searchPostByPageByMostView(PostSearchCondition condition, Pageable pageable) {
         List<PostResponseDto> result = query
                 .select(new QPostResponseDto(
                         QPost.post.id,
@@ -106,27 +99,26 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        return checkEndPage(pageable, result);
+        return new PageImpl<>(result, pageable, result.size());
     }
-
     /**
-     * 사용자명에 대한 조건을 생성하는 메소드입니다.
+     * 사용자명에 대한 검색 조건을 생성하는 메소드입니다.
      *
      * @param usernameCond 사용자명 조건
      * @return 사용자명 조건에 해당하는 BooleanExpression 객체
      */
     private BooleanExpression usernameEq(String usernameCond) {
-        return hasText(usernameCond) ? post.user.nickname.eq(usernameCond) : null;
+        return hasText(usernameCond) ? QPost.post.user.nickname.contains(usernameCond) : null;
     }
 
     /**
-     * 제목에 대한 조건을 생성하는 메소드입니다.
+     * 제목에 대한 검색 조건을 생성하는 메소드입니다.
      *
      * @param titleCond 제목 조건
      * @return 제목 조건에 해당하는 BooleanExpression 객체
      */
     private BooleanExpression titleEq(String titleCond) {
-        return hasText(titleCond) ? QPost.post.title.eq(titleCond) : null;
+        return hasText(titleCond) ? QPost.post.title.contains(titleCond) : null;
     }
 
     /**
@@ -143,5 +135,5 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
             content.remove(pageable.getPageSize());
         }
         return new SliceImpl<>(content, pageable, hasNext);
-    }
+    } // 무한 스크롤 사용시
 }

@@ -12,9 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RankingEntry {
-
-    private List<RankingEntry> rankingDataList;
-
     private String summonerName;
     private String tier;
     private String rank;

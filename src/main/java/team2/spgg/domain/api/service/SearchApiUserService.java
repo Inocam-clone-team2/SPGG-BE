@@ -32,6 +32,15 @@ public class SearchApiUserService {
         SummonerDto summonerDto = responseEntity.getBody();
         List<MatchDto> dataList = getMatch(summonerDto.getPuuid(), userAverage);
         userAverage.updateAverKda(userAverage, count);
+        refactorForResponse(userAverage, summonerDto);
+        FinalResponseDto finalResponseDto = FinalResponseDto.builder()
+                .summoner(summonerDto)
+                .matchInfo(dataList)
+                .userAverage(userAverage).build();
+        return ResponseEntity.ok(finalResponseDto);
+    }
+
+    private void refactorForResponse(UserAverageDto userAverage, SummonerDto summonerDto) {
         for (RecentCountDto recentCountDto : userAverage.getPlayChampionList().values()) {
             recentCountDto.averKda();
         }
@@ -42,12 +51,7 @@ public class SearchApiUserService {
             positionCountDto.updatePositionOdds(count);
         }
         summonerDto.updateForResponse();
-        FinalResponseDto finalResponseDto = FinalResponseDto.builder()
-                .summoner(summonerDto)
-                .matchInfo(dataList)
-                .userAverage(userAverage).build();
-        //  finalResponseDto.updateInfoForResponse(dataList);
-        return ResponseEntity.ok(finalResponseDto);
+        userAverage.updateChampListDESC();
     }
 
     public List<MatchDto> getMatch(String puuid, UserAverageDto userAverageDto) {

@@ -5,20 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RecentCountDto {
-    private Float champOdds =0F;
+    private Float champOdds;
+    private Integer gameCount;
     private Integer winCount;
     private Integer loseCount;
     private Integer killCount;
     private Integer deathCount;
     private Integer assistCount;
-    private Float averKda = 0F;
+    private Float averKda;
     private Boolean isPerpect=false;
 
     public void addCount(ParticipantDto participantDto){
@@ -33,7 +36,7 @@ public class RecentCountDto {
     }
 
     public void averKda(){
-        int gameCount = this.winCount+this.loseCount;
+        this.gameCount = this.winCount+this.loseCount;
         if(deathCount!=0) {
             float kda = (float) (killCount + assistCount) / deathCount;
             this.averKda = kda/gameCount;
@@ -51,5 +54,9 @@ public class RecentCountDto {
         } else {
             this.champOdds = 0F;
         }
+    }
+
+    public void updateGameCountToNull() {
+        this.gameCount = null;
     }
 }

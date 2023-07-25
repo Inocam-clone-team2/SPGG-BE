@@ -40,7 +40,6 @@ public class Post extends Timestamped {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -51,7 +50,6 @@ public class Post extends Timestamped {
     private long liked;
 
     private String image;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

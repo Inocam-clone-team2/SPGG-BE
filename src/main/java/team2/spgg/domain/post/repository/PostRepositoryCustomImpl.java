@@ -3,17 +3,18 @@ package team2.spgg.domain.post.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.SliceImpl;
 import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
-import team2.spgg.domain.post.dto.QPostResponseDto;
 import team2.spgg.domain.post.dto.QPostResponseDto;
 import team2.spgg.domain.post.entity.QPost;
 
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
-import static team2.spgg.domain.post.entity.QPost.post;
 
 
 @RequiredArgsConstructor

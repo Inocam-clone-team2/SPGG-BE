@@ -1,7 +1,10 @@
 package team2.spgg.domain.api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -9,15 +12,18 @@ import team2.spgg.domain.api.dto.searchapiuser.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "searchCash")
 public class SearchApiUserService {
     private final Integer count = 5;
     @Value("${riot.api.key}") // application.properties에 정의된 riot.api.key 값을 읽어옵니다.
     public String apiKey;
 
+    @Cacheable(key = "#summonerName")
     public ResponseEntity<FinalResponseDto> getSummoner(String summonerName) {
+        log.info("소환사 검색 시작");
         String apiUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summonerName + "?api_key=" + apiKey;
         UserAverageDto userAverageDto = new UserAverageDto();
         RestTemplate restTemplate = new RestTemplate();
@@ -34,6 +40,7 @@ public class SearchApiUserService {
     }
 
     public List<MatchDto> getMatch(String puuid, UserAverageDto userAverageDto) {
+        log.info("MatchList 검색 시작");
         String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
                 + "?type=ranked&start=0&count=" + count + "&api_key=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
@@ -44,8 +51,10 @@ public class SearchApiUserService {
     }
 
     public List<MatchDto> findMatchById(String[] matchIds, String puuid, UserAverageDto userAverageDto) {
+
         List<MatchDto> matchDtos = new ArrayList<>();
         for (String matchId : matchIds) {
+            log.info("매치 단건 상세조회 시작");
             String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
             RestTemplate restTemplate = new RestTemplate();
             MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);

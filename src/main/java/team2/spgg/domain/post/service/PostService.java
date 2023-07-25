@@ -2,7 +2,10 @@ package team2.spgg.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,8 +34,17 @@ public class PostService {
     private final PostRepository postRepository;
     private final S3Service s3Service;
 
+    // 최신순 전체조회
     public ApiResponse<?> searchPost(PostSearchCondition condition, Pageable pageable) {
         return ok(postRepository.serachPostBySlice(condition, pageable));
+    }
+    // 좋아요 (인기순) 조회
+    public ApiResponse<?> searchPostByPopularity(PostSearchCondition condition, Pageable pageable) {
+        return ok(postRepository.searchPostBySliceByPopularity(condition, pageable));
+    }
+    // 조회수 조회
+    public ApiResponse<?> searchPostByMostView(PostSearchCondition condition, Pageable pageable) {
+        return ok(postRepository.searchPostBySliceByMostView(condition, pageable));
     }
 
     @Transactional
@@ -43,11 +55,12 @@ public class PostService {
         return ResponseUtils.okWithMessage(POST_CREATE_SUCCESS);
     }
 
-
+    @Transactional
     public ApiResponse<?> getSinglePost(Long postId) {
         Post post = postRepository.findDetailPost(postId).orElseThrow(() ->
                 new InvalidConditionException(POST_NOT_EXIST));
         log.info("게시물 ID '{}' 조회 성공", postId);
+        post.increaseViews();
         return ok(new PostResponseDto(post));
     }
 
@@ -67,6 +80,8 @@ public class PostService {
         log.info("'{}'님이 게시물 ID '{}'를 삭제했습니다.", user.getNickname(), postId);
         return okWithMessage(POST_DELETE_SUCCESS);
     }
+
+
 
     private void updatePostDetail(PostRequestDto postRequestDto, MultipartFile image, Post post) {
         if (image != null && !image.isEmpty()) {

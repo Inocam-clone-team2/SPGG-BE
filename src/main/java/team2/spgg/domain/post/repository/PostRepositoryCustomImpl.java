@@ -42,6 +42,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                         QPost.post.createdAt,
                         QPost.post.image,
                         QPost.post.liked,
+                        QPost.post.views,
                         QPost.post.commentList.size().intValue()
                 ))
                 .from(QPost.post)
@@ -49,6 +50,58 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom{
                         usernameEq(condition.getNickname()),
                         titleEq(condition.getTitle()))
                 .orderBy(QPost.post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return checkEndPage(pageable, result);
+    }
+    @Override
+    public Slice<PostResponseDto> searchPostBySliceByPopularity(PostSearchCondition condition, Pageable pageable) {
+        List<PostResponseDto> result = query
+                .select(new QPostResponseDto(
+                        QPost.post.id,
+                        QPost.post.category,
+                        QPost.post.title,
+                        QPost.post.user.nickname,
+                        QPost.post.content,
+                        QPost.post.createdAt,
+                        QPost.post.image,
+                        QPost.post.liked,
+                        QPost.post.views,
+                        QPost.post.commentList.size().intValue()
+                ))
+                .from(QPost.post)
+                .where(
+                        usernameEq(condition.getNickname()),
+                        titleEq(condition.getTitle()))
+                .orderBy(QPost.post.liked.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return checkEndPage(pageable, result);
+    }
+    @Override
+    public Slice<PostResponseDto> searchPostBySliceByMostView(PostSearchCondition condition, Pageable pageable) {
+        List<PostResponseDto> result = query
+                .select(new QPostResponseDto(
+                        QPost.post.id,
+                        QPost.post.category,
+                        QPost.post.title,
+                        QPost.post.user.nickname,
+                        QPost.post.content,
+                        QPost.post.createdAt,
+                        QPost.post.image,
+                        QPost.post.liked,
+                        QPost.post.views,
+                        QPost.post.commentList.size().intValue()
+                ))
+                .from(QPost.post)
+                .where(
+                        usernameEq(condition.getNickname()),
+                        titleEq(condition.getTitle()))
+                .orderBy(QPost.post.views.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();

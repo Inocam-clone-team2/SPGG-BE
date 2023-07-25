@@ -115,6 +115,7 @@ public class WebSecurityConfig {
         config.addAllowedMethod("*");
         config.addExposedHeader("*");
         source.registerCorsConfiguration("/**",config);
+        source.registerCorsConfiguration("/chat", config);
         return new CorsFilter(source);
     }
 
@@ -140,8 +141,10 @@ public class WebSecurityConfig {
                         authorizeHttpRequests
                                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers(GET,"/chat").permitAll()
                                 .requestMatchers(GET,"/api/**").permitAll()
-                                .requestMatchers(GET, "/api/post/**").permitAll()
+                                .requestMatchers(GET, "/api/post").permitAll()
+                                .requestMatchers(GET, "/api/post/popular").permitAll()
                                 .requestMatchers(GET, "/ranking").permitAll()
                                 .requestMatchers(GET, "/ranking/master").permitAll()
                                 .requestMatchers(GET, "/ranking/all").permitAll()

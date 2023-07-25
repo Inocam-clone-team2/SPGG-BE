@@ -24,6 +24,7 @@ public class ParticipantDto {
     //cs관련. 두개 더하면 총 cs
     private Integer totalMinionsKilled;
     private Integer neutralMinionsKilled;
+    private Integer totalCs;
     //각 멀티킬 횟수. 0개면 pass, 1개이상이면 가장 높은 거 출력.
     private Integer doubleKills;
     private Integer tripleKills;
@@ -86,5 +87,9 @@ public class ParticipantDto {
     }
     public void updateIsPerpect() {
         this.isPerpect=true;
+    }
+
+    public void updateCs() {
+        this.totalCs = this.totalMinionsKilled + this.neutralMinionsKilled;
     }
 }

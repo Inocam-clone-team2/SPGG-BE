@@ -93,6 +93,7 @@ public class SearchApiUserService {
                         if (participant.getDeaths() == 0) {
                             participant.updateIsPerpect();
                         }
+                        participant.updateCs();
                         participant.updateRune(findMainRune(participant), findSubRune(participant));
                         participant.updateTeamToString();
                         participant.updateSpell(

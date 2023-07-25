@@ -26,7 +26,7 @@ public class RankingController {
 
     @GetMapping
     public ApiResponse<?> getRankingDataDetail(@RequestParam("tier") String tier,
-                                                                @RequestParam("rank") String rank) {
+                                               @RequestParam("rank") String rank) {
         return success(riotApiService.getRankingDataDetail(tier, rank));
     }
 
@@ -35,7 +35,6 @@ public class RankingController {
         List<RankingEntry> top10Data = riotApiService.getTopPlayersForEachTier(5);
         return success(top10Data);
     }
-
     @GetMapping("/all")
     public ApiResponse<?> getAllRankings() {
         return success(riotApiService.getAllRankingData());

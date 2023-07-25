@@ -36,15 +36,15 @@ public class PostService {
 
     // 최신순 전체조회
     public ApiResponse<?> searchPost(PostSearchCondition condition, Pageable pageable) {
-        return ok(postRepository.serachPostBySlice(condition, pageable));
+        return ok(postRepository.serachPostByPage(condition, pageable));
     }
     // 좋아요 (인기순) 조회
     public ApiResponse<?> searchPostByPopularity(PostSearchCondition condition, Pageable pageable) {
-        return ok(postRepository.searchPostBySliceByPopularity(condition, pageable));
+        return ok(postRepository.searchPostByPageByPopularity(condition, pageable));
     }
     // 조회수 조회
     public ApiResponse<?> searchPostByMostView(PostSearchCondition condition, Pageable pageable) {
-        return ok(postRepository.searchPostBySliceByMostView(condition, pageable));
+        return ok(postRepository.searchPostByPageByMostView(condition, pageable));
     }
 
     @Transactional

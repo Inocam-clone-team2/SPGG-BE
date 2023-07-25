@@ -17,6 +17,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    # 테스트 속도 향상용
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    
+    
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:

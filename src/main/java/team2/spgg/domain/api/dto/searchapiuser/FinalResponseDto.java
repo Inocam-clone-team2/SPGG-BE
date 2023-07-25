@@ -1,7 +1,9 @@
 package team2.spgg.domain.api.dto.searchapiuser;
 
-import lombok.*;
-import team2.spgg.domain.user.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,8 +14,9 @@ import java.util.List;
 @Getter
 public class FinalResponseDto {
     private SummonerDto summoner;
+    private UserAverageDto userAverage;
     private List<MatchDto> matchInfo;
-    private UserAverageDto userAverageDto;
+
 
     public void updateInfoForResponse(List<MatchDto> infos){
         if(infos!=null){

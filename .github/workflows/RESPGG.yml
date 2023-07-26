@@ -37,3 +37,10 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
       shell: bash
+      
+      # CHECK TEST OR BULID ERROER
+    - name: run test
+      run: ./gradlew test
+
+    - name: run build
+      run: ./gradlew clean build -x test

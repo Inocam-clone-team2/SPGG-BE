@@ -40,7 +40,7 @@ public class LikeService {
             log.info("'{}'님이 '{}'의 좋아요를 취소했습니다.", nickname, postTitle);
         }
 
-        return new PostResponseDto(post);
+        return new PostResponseDto(post, isLikedPost(post, user));
     }
 
 

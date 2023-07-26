@@ -26,6 +26,7 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private String image;
     private long liked;
+    private Boolean isLike;
     private int views;
     private int commentCount;
 
@@ -44,7 +45,7 @@ public class PostResponseDto {
     }
 
 
-    public PostResponseDto(Post post) {
+    public PostResponseDto(Post post, Boolean isLike) {
         this.id = post.getId();
         this.category = post.getCategory();
         this.title = post.getTitle();
@@ -57,5 +58,6 @@ public class PostResponseDto {
         this.image = post.getImage();
         this.liked = post.getLiked();
         this.views = post.getViews();
+        this.isLike = isLike;
     }
 }

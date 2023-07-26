@@ -1,5 +1,6 @@
 package team2.spgg.domain.post.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,8 +34,8 @@ public class PostController {
 
 
     @GetMapping("/{postId}")
-    public ApiResponse<?> readOnePost(@PathVariable Long postId) {
-        return postService.getSinglePost(postId);
+    public ApiResponse<?> readOnePost(@PathVariable Long postId, HttpServletRequest req) {
+        return postService.getSinglePost(postId, req);
     }
 
     @PostMapping

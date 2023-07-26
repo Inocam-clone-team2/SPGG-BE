@@ -1,7 +1,10 @@
 package team2.spgg.domain.post.service;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +15,13 @@ import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
 import team2.spgg.domain.post.entity.Post;
 import team2.spgg.domain.post.repository.PostRepository;
+import team2.spgg.domain.preference.entity.Like;
+import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
+import team2.spgg.domain.user.entity.UserRoleEnum;
+import team2.spgg.domain.user.repository.UserRepository;
 import team2.spgg.global.exception.InvalidConditionException;
+import team2.spgg.global.jwt.JwtProvider;
 import team2.spgg.global.responseDto.ApiResponse;
 import team2.spgg.global.utils.ResponseUtils;
 
@@ -30,7 +38,10 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final S3Service s3Service;
-
+    @Autowired
+    private final JwtProvider jwtProvider;
+    private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
     // 최신순 전체조회
     public ApiResponse<?> searchPost(PostSearchCondition condition, Pageable pageable) {
         return ok(postRepository.serachPostByPage(condition, pageable));
@@ -53,12 +64,25 @@ public class PostService {
     }
 
     @Transactional
-    public ApiResponse<?> getSinglePost(Long postId) {
+    public ApiResponse<?> getSinglePost(Long postId , HttpServletRequest req) {
+        String token = jwtProvider.getTokenFromHeader(req);
+        String subStringToken;
+        Boolean isLike=false;
+        if(token!=null) {
+            subStringToken = jwtProvider.substringHeaderToken(token);
+            Claims userInfo = jwtProvider.getUserInfoFromToken(subStringToken);
+            Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("?"));
+            User user = userRepository.findByEmail(userInfo.getSubject()).orElseThrow(()->new IllegalArgumentException("?"));
+
+            if(likeRepository.findByPostAndUser(post, user).isPresent()) {
+                isLike = true;
+            }
+        }
         Post post = postRepository.findDetailPost(postId).orElseThrow(() ->
                 new InvalidConditionException(POST_NOT_EXIST));
         log.info("게시물 ID '{}' 조회 성공", postId);
         post.increaseViews();
-        return ok(new PostResponseDto(post));
+        return ok(new PostResponseDto(post, isLike));
     }
 
     @Transactional

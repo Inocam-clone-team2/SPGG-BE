@@ -39,7 +39,6 @@ public class KakaoController {
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_type", "code")
-                .queryParam("scope","email")
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -89,7 +90,7 @@ public class KakaoService {
                         .claim("nickname", kakao.getKakaoNickname())
 
                         //(2-5)
-                        .signWith(SignatureAlgorithm.HS256, JwtProperties.SECRET)
+                        .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS512))
                         .compact();
         //.HMAC512
         return jwtToken; //(2-6)
@@ -140,7 +141,7 @@ public class KakaoService {
         payload.add("client_id", clientId);
         payload.add("redirect_uri", redirectUri);
         payload.add("code", code);
-//        params.add("client_secret", "{시크릿 키}"); // 생략 가능!
+        payload.add("client_secret", JwtProperties.SECRET); // 생략 가능!
 
         //(5)
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =

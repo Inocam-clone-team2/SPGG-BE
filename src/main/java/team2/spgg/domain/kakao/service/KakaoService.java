@@ -5,7 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,15 +27,21 @@ import team2.spgg.domain.kakao.entity.oauth.OauthToken;
 import team2.spgg.domain.kakao.kakaojwt.JwtProperties;
 import team2.spgg.domain.kakao.repository.KakaoRepository;
 
+import java.io.IOException;
 import java.util.Date;
 
+@Slf4j
 @Service
 public class KakaoService {
 
-    private final KakaoRepository kakaoRepository; //(1)
+    private final KakaoRepository kakaoRepository;
     private final RestTemplate restTemplate;
 
-    private final String clientId = "9b3f5d5d410faff975879a54b0c9f165";
+    @Value("${kakao.client-id}")
+    public String clientId;
+
+    @Value("${kakao.client-secret}")
+    public String clientSecret;
 
     public KakaoService(KakaoRepository kakaoRepository, RestTemplateBuilder restTemplateBuilder) {
         this.kakaoRepository = kakaoRepository;
@@ -41,7 +52,7 @@ public class KakaoService {
         KakaoProfile profile = findProfile(token);
 
         Kakao kakao = kakaoRepository.findByKakaoEmail(profile.getKakao_account().getEmail());
-        if(kakao == null) {
+        if (kakao == null) {
             kakao = Kakao.builder()
                     .kakaoId(profile.getId())
                     .kakaoProfileImg(profile.getKakao_account().getProfile().getProfile_image_url())
@@ -55,61 +66,47 @@ public class KakaoService {
         return createToken(kakao); //(2)
     }
 
-    public void findKakaoId(String token){
-
+    public void findKakaoId(String token) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token); //(1-4)
+        headers.add("Authorization", "Bearer " + token);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest =
-                new HttpEntity<>(headers); // 바디, 헤더 바디 타입은 T타입 헤더는 무조건 HttpHeaders 타입
-
-        ResponseEntity<KakaoTokeninfo> kakaoProfileResponse = restTemplate.exchange(
-                "https://kapi.kakao.com/v1/user/access_token_info", // 전송할 uri
-                HttpMethod.POST, // 전송 방식
-                kakaoProfileRequest, // 전송할 데이터
-                KakaoTokeninfo.class // 반환할 클래스
-        );
-
-        if(kakaoRepository.findByKakaoId(kakaoProfileResponse.getBody().getId()).isPresent())
-            throw new IllegalArgumentException("이미 회원가입 한 아이디입니다.");
-    }
-
-    public String createToken(Kakao kakao) { //(2-1)
-
-        //(2-2)
-        String jwtToken =
-                Jwts.builder()
-
-                        //(2-3)
-                        .setSubject(kakao.getKakaoEmail())
-                        .setExpiration(new Date(System.currentTimeMillis()+ JwtProperties.EXPIRATION_TIME))
-
-                        //(2-4)
-                        .claim("id", kakao.getUserCode())
-                        .claim("nickname", kakao.getKakaoNickname())
-
-                        //(2-5)
-                        .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS512))
-                        .compact();
-        //.HMAC512
-        return jwtToken; //(2-6)
-    }
-
-    //(1-1)
-    public KakaoProfile findProfile(String token) {
-
-        //(1-3)
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token); //(1-4)
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        //(1-5)
         HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest =
                 new HttpEntity<>(headers);
 
-        //(1-6)
-        // Http 요청 (POST 방식) 후, response 변수에 응답을 받음
+        ResponseEntity<KakaoTokeninfo> kakaoProfileResponse = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/access_token_info",
+                HttpMethod.POST,
+                kakaoProfileRequest,
+                KakaoTokeninfo.class
+        );
+
+        if (kakaoRepository.findByKakaoId(kakaoProfileResponse.getBody().getId()).isPresent()) {
+            throw new IllegalArgumentException("이미 회원가입 한 아이디입니다.");
+        }
+    }
+
+    public String createToken(Kakao kakao) {
+        String jwtToken =
+                Jwts.builder()
+                        .setSubject(kakao.getKakaoEmail())
+                        .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                        .claim("id", kakao.getKakaoId())
+                        .claim("nickname", kakao.getKakaoNickname())
+                        .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS512))
+                        .compact();
+
+        return jwtToken;
+    }
+
+    public KakaoProfile findProfile(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<MultiValueMap<String, String>> kakaoProfileRequest =
+                new HttpEntity<>(headers);
+
         ResponseEntity<String> kakaoProfileResponse = restTemplate.exchange(
                 "https://kapi.kakao.com/v2/user/me",
                 HttpMethod.POST,
@@ -117,7 +114,6 @@ public class KakaoService {
                 String.class
         );
 
-        //(1-7)
         ObjectMapper objectMapper = new ObjectMapper();
         KakaoProfile kakaoProfile = null;
         try {
@@ -130,24 +126,19 @@ public class KakaoService {
     }
 
     public OauthToken getAccessToken(String code, String redirectUri) {
-
-        //(3)
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
-        //(4)
         MultiValueMap<String, String> payload = new LinkedMultiValueMap<>();
         payload.add("grant_type", "authorization_code");
         payload.add("client_id", clientId);
         payload.add("redirect_uri", redirectUri);
         payload.add("code", code);
-        payload.add("client_secret", JwtProperties.SECRET); // 생략 가능!
+        payload.add("client_secret", clientSecret); // 사용할 Client Secret 추가
 
-        //(5)
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
                 new HttpEntity<>(payload, headers);
 
-        //(6)
         ResponseEntity<OauthToken> accessTokenResponse = restTemplate.exchange(
                 "https://kauth.kakao.com/oauth/token",
                 HttpMethod.POST,
@@ -155,16 +146,51 @@ public class KakaoService {
                 OauthToken.class
         );
 
-        return accessTokenResponse.getBody(); //(8)
+        return accessTokenResponse.getBody();
     }
-    public Kakao getUser(HttpServletRequest request) { //(1)
-        //(2)
+
+    public Kakao getUser(HttpServletRequest request) {
         Long userCode = (Long) request.getAttribute("userCode");
-
-        //(3)
         Kakao kakao = kakaoRepository.findByKakaoId(userCode);
-
-        //(4)
         return kakao;
+    }
+
+    public String getKakaoLogoutUrl(HttpServletRequest request) {
+        String redirectUri = "http://" + request.getHeader("host") + "/api/oauth/logout";
+        return "https://kauth.kakao.com/oauth/logout?client_id=" + clientId + "&logout_redirect_uri=" + redirectUri;
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        //  클라이언트 쿠키 삭제
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
+        }
+
+        // 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        // 카카오 로그아웃
+        String kakaoLogoutUrl = getKakaoLogoutUrl(request);
+
+        // 브라우저로 응답을 보내지 않도록 처리
+        try {
+            response.sendRedirect(kakaoLogoutUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 데이터베이스에서 사용자 정보 제거
+        Long userCode = (Long) request.getAttribute("userCode");
+        if (userCode != null) {
+            kakaoRepository.deleteById(userCode);
+        }
     }
 }

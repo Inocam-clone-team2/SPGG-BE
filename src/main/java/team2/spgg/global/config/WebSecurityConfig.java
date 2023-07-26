@@ -82,25 +82,6 @@ public class WebSecurityConfig {
         return new JwtAuthorizationFilter(jwtProvider, userDetailsService);
     }
 
-    /**
-     * CORS 구성을 설정합니다.
-     *
-     * @return CorsConfigurationSource 인스턴스
-     */
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//
-//        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//        config.setAllowedMethods(Arrays.asList("HEAD","POST","GET","DELETE","PUT","OPTIONS"));
-//        config.setAllowedHeaders(Arrays.asList("*"));
-//        config.addExposedHeader("*");
-//        config.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -153,5 +134,6 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtExceptionFilter(), JwtAuthenticationFilter.class);
         return http.build();
     }
+
 }
 

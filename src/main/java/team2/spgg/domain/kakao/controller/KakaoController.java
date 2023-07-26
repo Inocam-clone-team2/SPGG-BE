@@ -1,6 +1,7 @@
 package team2.spgg.domain.kakao.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -25,33 +26,30 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class KakaoController {
 
-
     private final KakaoService kakaoService;
 
-    private final String clientId = "9b3f5d5d410faff975879a54b0c9f165";
-
     @GetMapping("/kakao")
-    public ResponseEntity getKakao(HttpServletRequest request){
+    public ResponseEntity<Void> getKakao(HttpServletRequest request) {
         String redirectUri = "http://" + request.getHeader("host") + "/api/oauth/token";
         URI uri = UriComponentsBuilder
                 .fromUriString("https://kauth.kakao.com")
                 .path("/oauth/authorize")
-                .queryParam("client_id", clientId)
+                .queryParam("client_id", kakaoService.clientId)
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_type", "code")
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
-
         log.info("uri = " + uri.toString());
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(uri);
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+
     }
 
     // 프론트에서 인가코드 받아오는 url
     @GetMapping("/token")
-    public ResponseEntity getLogin(@RequestParam("code") String code,HttpServletRequest request) { //(1)
+    public ResponseEntity getLogin(@RequestParam("code") String code, HttpServletRequest request) { //(1)
 
         String redirectUri = "http://" + request.getHeader("host") + "/api/oauth/token";
 
@@ -70,21 +68,20 @@ public class KakaoController {
         return ResponseEntity.ok().headers(headers).body("success");
     }
 
+
     @GetMapping("/me")
-    public ResponseEntity<Object> getCurrentUser(HttpServletRequest request) { //(1)
-
-        //(2)
+    public ResponseEntity<Object> getCurrentUser(HttpServletRequest request) {
         Kakao kakao = kakaoService.getUser(request);
-
-        //(3)
         return ResponseEntity.ok().body(kakao);
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 서비스 내에서 로그아웃 처리를 진행합니다.
+        kakaoService.logout(request, response);
+
+        // 로그아웃 완료 후, 다시 로그인 페이지로 리다이렉트합니다.
+        String loginRedirectUrl = "http://" + request.getHeader("host") + "/api/oauth/kakao";
+        return ResponseEntity.status(HttpStatus.FOUND).header("Location", loginRedirectUrl).build();
+    }
 }
-/*
-앱 키
-플랫폼	앱 키	재발급
-네이티브 앱 키	3fe963e66a41089f22e5b69567be2088복사	재발급
-REST API 키	9b3f5d5d410faff975879a54b0c9f165복사	재발급
-JavaScript 키	179bed4135d6d30735844f5355cbf4ce복사	재발급
-Admin 키	c40a759e8a9dbd24909893e8b46b5606복사	재발급
- */

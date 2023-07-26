@@ -11,7 +11,5 @@ public interface KakaoRepository extends JpaRepository<Kakao, Long> {
     // select * from user_master where kakao_email = ?
     public Kakao findByKakaoEmail(String kakaoEmail);
 
-    public Kakao findByUserCode(Long userCode);
-
     Kakao findByKakaoId(Long kakaoId);
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 @Entity
 @Data

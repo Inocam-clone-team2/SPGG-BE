@@ -3,7 +3,9 @@ package team2.spgg.domain.api.dto.searchapiuser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +19,9 @@ public class InfoDto {
     private Long second;
     private Long gameStartTimestamp;
     private Long gameEndTimestamp;
+    private String gameEndTime;
     private Long gameTimeAgo;
+    private ParticipantDto searchUserInfo;
     private List<ParticipantDto> participants;
     private String platformId;
 
@@ -36,9 +40,14 @@ public class InfoDto {
         this.second = ((this.gameEndTimestamp-this.gameStartTimestamp)/1000)%60;
         this.gameDuration=null;
         this.gameTimeAgo = (currentTime-gameEndTimestamp)/60000;
-        this.gameStartTimestamp=null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // 시간대를 UTC로 설정
+        this.gameEndTime = sdf.format(gameEndTimestamp);
         this.gameEndTimestamp=null;
+        this.gameStartTimestamp=null;
 
-
+    }
+    public void updateSearchUserInfo(ParticipantDto participantDto){
+        this.searchUserInfo = participantDto;
     }
 }

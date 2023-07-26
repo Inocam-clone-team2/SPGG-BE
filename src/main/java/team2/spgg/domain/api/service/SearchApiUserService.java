@@ -31,6 +31,7 @@ public class SearchApiUserService {
         cacheManager.getCache("searchcash").evict(summonerName);
         return getSummoner(summonerName);
     }
+
     @Cacheable(key = "#summonerName")
     public ResponseEntity<FinalResponseDto> getSummoner(String summonerName) {
 
@@ -85,7 +86,7 @@ public class SearchApiUserService {
             RestTemplate restTemplate = new RestTemplate();
             MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);
             matchDto.getInfo().updateGameTime(System.currentTimeMillis());
-            List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid, userAverageDto);
+            List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo(), matchDto.getInfo().getParticipants(), puuid, userAverageDto);
             matchDto.getInfo().updateParticipantsList(participantDtoList);
             matchDtos.add(matchDto);
         }
@@ -100,11 +101,12 @@ public class SearchApiUserService {
         return participantDto.getPerks().getStyles().get(0).getSelections().get(0).getPerk();
     }
 
-    public List<ParticipantDto> findParticipantByPuuid(List<ParticipantDto> participants, String puuid, UserAverageDto userAverageDto) {
+    public List<ParticipantDto> findParticipantByPuuid(InfoDto infoDto, List<ParticipantDto> participants, String puuid, UserAverageDto userAverageDto) {
         List<ParticipantDto> participantDtoList = (participants.stream()
                 .map(participant -> {
                     if (participant.getPuuid().equals(puuid)) {
-                        refactorForSearchUser(userAverageDto, participant);
+                        ParticipantDto searchUserInfo = participant;
+                        infoDto.updateSearchUserInfo(refactorForSearchUser(userAverageDto, searchUserInfo));
                         if (!userAverageDto.getPositionList().containsKey(participant.getTeamPosition())) {
                             userAverageDto.getPositionList().put(participant.getTeamPosition(), PositionCountDto.builder()
                                     .count(1).build());
@@ -122,19 +124,16 @@ public class SearchApiUserService {
                         } else {
                             userAverageDto.getPlayChampionList().get(participant.getChampionName()).addCount(participant);
                         }
-                        return participant; // filter에 걸리면 수정 없이 그대로 반환
-                    } else {
-                        // filter에 걸리지 않으면 새로운 ParticipantDto 객체를 생성하여 반환
-                        ParticipantDto participantDto = new ParticipantDto(participant.getSummonerName(), participant.getChampionName(), participant.getTeamId());
-                        participantDto.updateTeamToString();
-                        return participantDto;
                     }
+                    ParticipantDto participantDto = new ParticipantDto(participant.getSummonerName(), participant.getChampionName(), participant.getTeamId());
+                    participantDto.updateTeamToString();
+                    return participantDto;
                 })
                 .toList());
         return participantDtoList;
     }
 
-    private void refactorForSearchUser(UserAverageDto userAverageDto, ParticipantDto participant) {
+    private ParticipantDto refactorForSearchUser(UserAverageDto userAverageDto, ParticipantDto participant) {
         userAverageDto.addUserTotalKda(participant.getWin(), participant.getKills(), participant.getDeaths(), participant.getAssists());
         if (participant.getDeaths() == 0) {
             participant.updateIsPerpect();
@@ -143,9 +142,9 @@ public class SearchApiUserService {
         }
         participant.updateCs();
         participant.updateRune(findMainRune(participant), findSubRune(participant));
-        participant.updateTeamToString();
         participant.updateSpell(
                 placeSpellNameBySpellId(participant.getSummoner1Id()), placeSpellNameBySpellId(participant.getSummoner2Id()));
+        return participant;
     }
 
     public String placeSpellNameBySpellId(Integer spellId) {

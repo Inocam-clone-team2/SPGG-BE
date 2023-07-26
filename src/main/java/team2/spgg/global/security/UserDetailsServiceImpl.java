@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import team2.spgg.domain.kakao.entity.Kakao;
 import team2.spgg.domain.user.entity.User;
 import team2.spgg.domain.user.repository.UserRepository;
 
@@ -26,6 +27,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 " + email + "은 존재하지 않습니다"));
 
-        return new UserDetailsImpl(user);
+        return new UserDetailsImpl(user, new Kakao());
     }
 }

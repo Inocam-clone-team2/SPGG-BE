@@ -8,8 +8,6 @@ on:
 env:
   PROJECT_NAME: my-project
   BUCKET_NAME: my-s3-bucket
-  CODE_DEPLOY_APP_NAME: my-codedeploy-app
-  DEPLOYMENT_GROUP_NAME: my-codedeploy-group
 
 jobs:
   build:

@@ -17,8 +17,9 @@ jobs:
         uses: actions/checkout@v2
         
       - name: Setup Java JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
+          distribution: 'zulu'
           java-version: 17
           # 여기에 머가 문제인데~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           # 빌드

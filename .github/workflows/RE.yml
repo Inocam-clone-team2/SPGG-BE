@@ -39,7 +39,7 @@ jobs:
         run: ./gradlew build
         
       - name: Make Zip File
-        run: zip -qq -r ./app.zip .
+        run: zip -qq -r ./app.zip .  # 쉘명령어 찾아보고싶음 찾아보아뱀 ㅎ
       #aws
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

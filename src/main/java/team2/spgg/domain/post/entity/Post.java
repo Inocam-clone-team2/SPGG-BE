@@ -29,12 +29,16 @@ public class Post extends Timestamped {
     @Column(name = "post_id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
+    private int views;
+
     @Column(nullable = false)
     private String title;
 
     @Column(name = "nickname", nullable = false)
     private String nickname;
-
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -48,22 +52,19 @@ public class Post extends Timestamped {
     private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id") // 카테고리 정보를 가리키는 외래키
-    private Category category;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @OnDelete(action = CASCADE)
     private User user;
 
     public Post(PostRequestDto postRequestDto, String image, User user) {
+        this.category = postRequestDto.getCategory();
         this.title = postRequestDto.getTitle();
         this.nickname = user.getNickname();
         this.content = postRequestDto.getContent();
         this.image = image;
+        this.views = 0;
         this.liked = 0;
         this.user = user;
-        this.category = getCategory();// 카테고리 정보 추가
     }
 
     public void update(PostRequestDto postRequestDto) {
@@ -75,6 +76,9 @@ public class Post extends Timestamped {
         this.title = postRequestDto.getTitle();
         this.content = postRequestDto.getContent();
         this.image = image;
+    }
+    public void increaseViews() {
+        this.views++;
     }
 
     public void addComment(Comment comment) {

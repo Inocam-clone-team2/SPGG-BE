@@ -1,5 +1,6 @@
 package team2.spgg.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostResponseDto {
 
     private Long id;
+    private Category category;
     private String title;
     private String nickname;
     private String content;
@@ -23,23 +26,28 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private String image;
     private long liked;
-    private Category category; // 카테고리 정보 추가
+    private Boolean isLike;
+    private int views;
+    private int commentCount;
 
     @QueryProjection
-    public PostResponseDto(Long id, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked) {
+    public PostResponseDto(Long id, Category category, String title, String nickname, String content, LocalDateTime createdAt, String image, long liked, int views, int commentCount) {
         this.id = id;
+        this.category = category;
         this.title = title;
         this.nickname = nickname;
         this.content = content;
         this.createdAt = createdAt;
+        this.commentCount = commentCount;
         this.image = image;
         this.liked = liked;
-        this.category = category; // 카테고리 정보 추가
+        this.views = views;
     }
 
 
-    public PostResponseDto(Post post) {
+    public PostResponseDto(Post post, Boolean isLike) {
         this.id = post.getId();
+        this.category = post.getCategory();
         this.title = post.getTitle();
         this.nickname = post.getUser().getNickname();
         this.content = post.getContent();
@@ -49,6 +57,7 @@ public class PostResponseDto {
         this.createdAt = post.getCreatedAt();
         this.image = post.getImage();
         this.liked = post.getLiked();
-        this.category = post.getCategory();
+        this.views = post.getViews();
+        this.isLike = isLike;
     }
 }

@@ -1,9 +1,11 @@
 package team2.spgg.domain.post.service;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -11,17 +13,20 @@ import org.springframework.web.multipart.MultipartFile;
 import team2.spgg.domain.post.dto.PostRequestDto;
 import team2.spgg.domain.post.dto.PostResponseDto;
 import team2.spgg.domain.post.dto.PostSearchCondition;
-import team2.spgg.domain.post.entity.Category;
 import team2.spgg.domain.post.entity.Post;
-import team2.spgg.domain.post.repository.CategoryRepository;
 import team2.spgg.domain.post.repository.PostRepository;
+import team2.spgg.domain.preference.entity.Like;
+import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
+import team2.spgg.domain.user.entity.UserRoleEnum;
+import team2.spgg.domain.user.repository.UserRepository;
 import team2.spgg.global.exception.InvalidConditionException;
+import team2.spgg.global.jwt.JwtProvider;
 import team2.spgg.global.responseDto.ApiResponse;
 import team2.spgg.global.utils.ResponseUtils;
 
-import static team2.spgg.global.responseDto.ApiResponse.*;
-import static team2.spgg.global.stringCode.ErrorCodeEnum.*;
+import static team2.spgg.global.stringCode.ErrorCodeEnum.POST_NOT_EXIST;
+import static team2.spgg.global.stringCode.ErrorCodeEnum.USER_NOT_MATCH;
 import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
 import static team2.spgg.global.utils.ResponseUtils.ok;
 import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
@@ -32,11 +37,22 @@ import static team2.spgg.global.utils.ResponseUtils.okWithMessage;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final CategoryRepository categoryRepository;
     private final S3Service s3Service;
-
+    @Autowired
+    private final JwtProvider jwtProvider;
+    private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
+    // 최신순 전체조회
     public ApiResponse<?> searchPost(PostSearchCondition condition, Pageable pageable) {
-        return ok(postRepository.serachPostBySlice(condition, pageable));
+        return ok(postRepository.serachPostByPage(condition, pageable));
+    }
+    // 좋아요 (인기순) 조회
+    public ApiResponse<?> searchPostByPopularity(PostSearchCondition condition, Pageable pageable) {
+        return ok(postRepository.searchPostByPageByPopularity(condition, pageable));
+    }
+    // 조회수 조회
+    public ApiResponse<?> searchPostByMostView(PostSearchCondition condition, Pageable pageable) {
+        return ok(postRepository.searchPostByPageByMostView(condition, pageable));
     }
 
     @Transactional
@@ -47,12 +63,26 @@ public class PostService {
         return ResponseUtils.okWithMessage(POST_CREATE_SUCCESS);
     }
 
+    @Transactional
+    public ApiResponse<?> getSinglePost(Long postId , HttpServletRequest req) {
+        String token = jwtProvider.getTokenFromHeader(req);
+        String subStringToken;
+        Boolean isLike=false;
+        if(token!=null) {
+            subStringToken = jwtProvider.substringHeaderToken(token);
+            Claims userInfo = jwtProvider.getUserInfoFromToken(subStringToken);
+            Post post = postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("?"));
+            User user = userRepository.findByEmail(userInfo.getSubject()).orElseThrow(()->new IllegalArgumentException("?"));
 
-    public ApiResponse<?> getSinglePost(Long postId) {
+            if(likeRepository.findByPostAndUser(post, user).isPresent()) {
+                isLike = true;
+            }
+        }
         Post post = postRepository.findDetailPost(postId).orElseThrow(() ->
                 new InvalidConditionException(POST_NOT_EXIST));
         log.info("게시물 ID '{}' 조회 성공", postId);
-        return ok(new PostResponseDto(post));
+        post.increaseViews();
+        return ok(new PostResponseDto(post, isLike));
     }
 
     @Transactional
@@ -72,22 +102,7 @@ public class PostService {
         return okWithMessage(POST_DELETE_SUCCESS);
     }
 
-    // 카테고리 정보로 게시물 조회
-    public ApiResponse<?> getPostsByCategory(Long categoryId, Pageable pageable) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new InvalidConditionException(CATEGORY_NOT_EXIST));
-        Slice<PostResponseDto> posts = postRepository.findByCategory(category, pageable).map(PostResponseDto::new);
-        return success("게시물을 조회 했습니다.");
-    }
-    // 카테고리 이름으로 게시물 조회
-    public ApiResponse<?> getPostsByCategoryName(String categoryName, Pageable pageable) {
-        Category category = categoryRepository.findByName(categoryName);
-        if (category == null) {
-            throw new InvalidConditionException(CATEGORY_NOT_EXIST);
-        }
-        Slice<PostResponseDto> posts = postRepository.findByCategory(category, pageable).map(PostResponseDto::new);
-        return success("게시물을 조회했습니다.");
-    }
+
 
     private void updatePostDetail(PostRequestDto postRequestDto, MultipartFile image, Post post) {
         if (image != null && !image.isEmpty()) {

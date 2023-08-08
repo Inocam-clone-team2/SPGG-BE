@@ -11,12 +11,8 @@ import team2.spgg.domain.preference.entity.Like;
 import team2.spgg.domain.preference.repository.LikeRepository;
 import team2.spgg.domain.user.entity.User;
 import team2.spgg.global.exception.InvalidConditionException;
-import team2.spgg.global.responseDto.ApiResponse;
-import team2.spgg.global.utils.ResponseUtils;
 
 import static team2.spgg.global.stringCode.ErrorCodeEnum.POST_NOT_EXIST;
-import static team2.spgg.global.stringCode.SuccessCodeEnum.*;
-import static team2.spgg.global.utils.ResponseUtils.*;
 
 @Slf4j
 @Service
@@ -44,7 +40,7 @@ public class LikeService {
             log.info("'{}'님이 '{}'의 좋아요를 취소했습니다.", nickname, postTitle);
         }
 
-        return new PostResponseDto(post);
+        return new PostResponseDto(post, isLikedPost(post, user));
     }
 
 

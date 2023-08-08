@@ -1,7 +1,12 @@
 package team2.spgg.domain.api.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -10,30 +15,44 @@ import team2.spgg.domain.api.dto.searchapiuser.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "searchCash")
 public class SearchApiUserService {
-    private final Integer count = 5;
+    private final Integer count = 10;
     @Value("${riot.api.key}") // application.properties에 정의된 riot.api.key 값을 읽어옵니다.
     public String apiKey;
 
+    @Autowired
+    private CacheManager cacheManager;
+
+    public ResponseEntity<?> getRefreshSummoner(String summonerName) {
+        cacheManager.getCache("searchcash").evict(summonerName);
+        return getSummoner(summonerName);
+    }
+
+    @Cacheable(key = "#summonerName")
     public ResponseEntity<FinalResponseDto> getSummoner(String summonerName) {
+
+        log.info("소환사 검색 시작");
         String apiUrl = "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/" + summonerName + "?api_key=" + apiKey;
-        UserAverageDto userAverageDto = new UserAverageDto();
+        UserAverageDto userAverage = new UserAverageDto();
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<SummonerDto> responseEntity = restTemplate.getForEntity(apiUrl, SummonerDto.class);
         SummonerDto summonerDto = responseEntity.getBody();
-        List<MatchDto> dataList = getMatch(summonerDto.getPuuid(), userAverageDto);
-        summonerDto.updateForResponse();
+        List<MatchDto> dataList = getMatch(summonerDto.getPuuid(), userAverage);
+        userAverage.updateAverKda(userAverage, count);
+        refactorForResponse(userAverage, summonerDto);
         FinalResponseDto finalResponseDto = FinalResponseDto.builder()
                 .summoner(summonerDto)
-                .matchInfo(new ArrayList<>())
-                .userAverageDto(userAverageDto).build();
-        finalResponseDto.updateInfoForResponse(dataList);
+                .matchInfo(dataList)
+                .userAverage(userAverage).build();
         return ResponseEntity.ok(finalResponseDto);
     }
 
     public List<MatchDto> getMatch(String puuid, UserAverageDto userAverageDto) {
+        log.info("MatchList 검색 시작");
         String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
                 + "?type=ranked&start=0&count=" + count + "&api_key=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
@@ -43,13 +62,31 @@ public class SearchApiUserService {
 
     }
 
+//    public List<MatchDto> getMatch(String puuid, UserAverageDto userAverageDto, String matchId) {
+//        log.info("갱신할 MatchList 검색 시작");
+//        String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/" + puuid + "/ids"
+//                + "?type=ranked&start=0&count=" + count + "&api_key=" + apiKey;
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<String[]> MatchId = restTemplate.getForEntity(apiUrl, String[].class);
+//        String[] dataArray = MatchId.getBody();
+//        OptionalInt matchIdIndexOptional = IntStream.range(0, dataArray.length)
+//                .filter(i -> dataArray[i].equals(matchId))
+//                .findFirst();
+//        int matchIdIndex = matchIdIndexOptional.orElse(10);
+//        String[] refreshArray = Arrays.copyOfRange(dataArray, 0, matchIdIndex);
+//        return findMatchById(refreshArray, puuid, userAverageDto);
+//    }
+
     public List<MatchDto> findMatchById(String[] matchIds, String puuid, UserAverageDto userAverageDto) {
+
         List<MatchDto> matchDtos = new ArrayList<>();
         for (String matchId : matchIds) {
+            log.info("매치 단건 상세조회 시작");
             String apiUrl = "https://asia.api.riotgames.com/lol/match/v5/matches/" + matchId + "?api_key=" + apiKey;
             RestTemplate restTemplate = new RestTemplate();
             MatchDto matchDto = restTemplate.getForObject(apiUrl, MatchDto.class);
-            List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo().getParticipants(), puuid, userAverageDto);
+            matchDto.getInfo().updateGameTime(System.currentTimeMillis());
+            List<ParticipantDto> participantDtoList = findParticipantByPuuid(matchDto.getInfo(), matchDto.getInfo().getParticipants(), puuid, userAverageDto);
             matchDto.getInfo().updateParticipantsList(participantDtoList);
             matchDtos.add(matchDto);
         }
@@ -64,15 +101,20 @@ public class SearchApiUserService {
         return participantDto.getPerks().getStyles().get(0).getSelections().get(0).getPerk();
     }
 
-    public List<ParticipantDto> findParticipantByPuuid(List<ParticipantDto> participants, String puuid, UserAverageDto userAverageDto) {
+    public List<ParticipantDto> findParticipantByPuuid(InfoDto infoDto, List<ParticipantDto> participants, String puuid, UserAverageDto userAverageDto) {
         List<ParticipantDto> participantDtoList = (participants.stream()
                 .map(participant -> {
                     if (participant.getPuuid().equals(puuid)) {
-                        participant.updateRune(findMainRune(participant), findSubRune(participant));
-                        participant.updateSpell(
-                                placeSpellNameBySpellId(participant.getSummoner1Id()), placeSpellNameBySpellId(participant.getSummoner2Id()));
-                        if (!userAverageDto.getResentChampionList().containsKey(participant.getChampionName())) {
-                            userAverageDto.getResentChampionList().put(participant.getChampionName(), RecentCountDto.builder()
+                        ParticipantDto searchUserInfo = participant;
+                        infoDto.updateSearchUserInfo(refactorForSearchUser(userAverageDto, searchUserInfo));
+                        if (!userAverageDto.getPositionList().containsKey(participant.getTeamPosition())) {
+                            userAverageDto.getPositionList().put(participant.getTeamPosition(), PositionCountDto.builder()
+                                    .count(1).build());
+                        } else {
+                            userAverageDto.getPositionList().get(participant.getTeamPosition()).addPositionCount();
+                        }
+                        if (!userAverageDto.getPlayChampionList().containsKey(participant.getChampionName())) {
+                            userAverageDto.getPlayChampionList().put(participant.getChampionName(), RecentCountDto.builder()
                                     .killCount(participant.getKills())
                                     .deathCount(participant.getDeaths())
                                     .assistCount(participant.getAssists())
@@ -80,16 +122,29 @@ public class SearchApiUserService {
                                     .loseCount(participant.getWin() ? 0 : 1)
                                     .build());
                         } else {
-                            userAverageDto.getResentChampionList().get(participant.getChampionName()).addCount(participant);
+                            userAverageDto.getPlayChampionList().get(participant.getChampionName()).addCount(participant);
                         }
-                        return participant; // filter에 걸리면 수정 없이 그대로 반환
-                    } else {
-                        // filter에 걸리지 않으면 새로운 ParticipantDto 객체를 생성하여 반환
-                        return new ParticipantDto(participant.getSummonerName(), participant.getChampionName(), participant.getTeamId());
                     }
+                    ParticipantDto participantDto = new ParticipantDto(participant.getSummonerName(), participant.getChampionName(), participant.getTeamId());
+                    participantDto.updateTeamToString();
+                    return participantDto;
                 })
                 .toList());
         return participantDtoList;
+    }
+
+    private ParticipantDto refactorForSearchUser(UserAverageDto userAverageDto, ParticipantDto participant) {
+        userAverageDto.addUserTotalKda(participant.getWin(), participant.getKills(), participant.getDeaths(), participant.getAssists());
+        if (participant.getDeaths() == 0) {
+            participant.updateIsPerpect();
+        } else {
+            participant.updateKda();
+        }
+        participant.updateCs();
+        participant.updateRune(findMainRune(participant), findSubRune(participant));
+        participant.updateSpell(
+                placeSpellNameBySpellId(participant.getSummoner1Id()), placeSpellNameBySpellId(participant.getSummoner2Id()));
+        return participant;
     }
 
     public String placeSpellNameBySpellId(Integer spellId) {
@@ -128,4 +183,19 @@ public class SearchApiUserService {
         }
         return spellName;
     }
+
+    private void refactorForResponse(UserAverageDto userAverage, SummonerDto summonerDto) {
+        for (RecentCountDto recentCountDto : userAverage.getPlayChampionList().values()) {
+            recentCountDto.averKda();
+        }
+        if (userAverage.getUserAverDeath() == 0) {
+            userAverage.updateIsPerpect();
+        }
+        for (PositionCountDto positionCountDto : userAverage.getPositionList().values()) {
+            positionCountDto.updatePositionOdds(count);
+        }
+        summonerDto.updateForResponse();
+        userAverage.updateChampListDESC();
+    }
+
 }

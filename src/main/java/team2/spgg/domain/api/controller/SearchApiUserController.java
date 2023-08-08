@@ -16,4 +16,9 @@ public class SearchApiUserController {
     public ResponseEntity<?> getSummoner(@RequestParam String summonerName) {
         return searchApiUserService.getSummoner(summonerName);
     }
+
+    @GetMapping("/api/search/refresh")
+    public ResponseEntity<?> getRefreshSummoner(@RequestParam String summonerName){
+        return searchApiUserService.getRefreshSummoner(summonerName);
+    }
 }

@@ -3,6 +3,8 @@ package team2.spgg.domain.api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@CacheConfig(cacheNames ="rankingData")
 public class RiotApiService {
 
     private final RestTemplate restTemplate;
@@ -33,6 +36,7 @@ public class RiotApiService {
     }
 
     // 1. 전체 유저 랭킹 조회기능
+
     public List<RankingEntry> getAllRankingData() {
         if (rankingDataList.isEmpty()) {
             // 데이터가 없는 경우 API로부터 데이터를 가져와서 저장
@@ -44,6 +48,7 @@ public class RiotApiService {
     }
 
     // 2. 티어별 특정 랭킹 조회기능
+
     public List<RankingEntry> getRankingDataDetail(String tier, String rank) {
         String apiUrl = buildApiUrl(tier, rank);
         List<RankingEntry> rankingDataList = getRankingData(apiUrl);
@@ -52,6 +57,7 @@ public class RiotApiService {
     }
 
     // 3. 티어별 상위 N명씩 조회 (마스터 ~ 아이언)
+    @Cacheable(key ="#n")
     public List<RankingEntry> getTopPlayersForEachTier(int n) {
         String[] tiers = {"DIAMOND", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON"};
         String[] ranks = {"I", "II", "III", "IV"};
